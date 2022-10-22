@@ -1,0 +1,25 @@
+# Configuration for Kurzlink, a static site generator for your shortlinks
+config:
+  network:
+    timeout: 1000
+
+tags:
+  - name: feuer
+    description: Heißes Zeugs
+    image: feuer.svg
+  - name: wasser
+    description: Nasses Zeugs
+    image: wasser.svg
+  - name: software
+    description: Software Zeugs
+    image: software.svg
+
+shortlinks:
+  - sources:
+      - tux
+      - pingu
+    destination: https://en.wikipedia.org/wiki/Tux_(mascot)
+    tags:
+      - wasser
+      - software
+    check: false
