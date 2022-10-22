@@ -1,6 +1,6 @@
 use crate::{
     config::{shortlink::Shortlink, tag::Tag},
-    utils::{yaml_from_file, check_urls},
+    utils::{check_urls, yaml_from_file},
 };
 
 use std::{path::Path, time::Duration};
@@ -42,13 +42,16 @@ impl Config {
         }
     }
 
-    pub fn check_links(& self) {
-        let mut links: Vec<&str> = Vec::new();
-        // get all dst links
-        for sl in &self.shortlinks {
-            links.push(&sl.destination);
-        }
+    pub fn check_links(&self) {
+        let links = self
+            .shortlinks
+            .iter()
+            .filter(|v| v.check_connection)
+            .map(|v| v.destination.as_str())
+            .collect::<Vec<&str>>();
 
-        let _ = check_urls(links, self.timeout);
+        if let Err(error) = check_urls(&links, self.timeout) {
+            println!("Some response failed with (1): {}", error);
+        }
     }
 }
