@@ -23,3 +23,11 @@ shortlinks:
       - wasser
       - software
     check: false
+  - sources:
+      - tux
+      - pingu
+    destination: https://en.wikipedia.org/wiki/Aaaaaasdsdsdsd
+    tags:
+      - wasser
+      - software
+    check: true
