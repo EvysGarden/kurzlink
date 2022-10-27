@@ -4,13 +4,13 @@ config:
     timeout: 1000
 
 tags:
-  - name: feuer
+  feuer:
     description: Heißes Zeugs
     image: feuer.svg
-  - name: wasser
+  wasser:
     description: Nasses Zeugs
     image: wasser.svg
-  - name: software
+  software:
     description: Software Zeugs
     image: software.svg
 
@@ -24,9 +24,16 @@ shortlinks:
       - software
     check: false
   - sources:
-      - tux
-      - pingu
+      - broken
     destination: https://en.wikipedia.org/wiki/Aaaaaasdsdsdsd
+    tags:
+      - wasser
+      - software
+    check: true
+  - sources:
+      - tuxi
+      - pingus
+    destination: https://en.wikipedia.org/wiki/brainfood_experience
     tags:
       - wasser
       - software
