@@ -47,3 +47,23 @@ pub fn check_urls(urls: &Vec<&str>, timeout: Duration) -> Result<(), BoxError> {
     }
     Ok(())
 }
+
+pub fn find_duplicates<'a, I, T>(iter: I) -> Option<HashSet<&'a T>>
+where
+    I: Iterator<Item = &'a T>,
+    T: 'a + std::hash::Hash + std::cmp::Eq,
+{
+    let mut set = HashSet::new();
+    let mut duplicates = HashSet::new();
+    iter.for_each(|v| {
+        if !set.insert(v) {
+            duplicates.insert(v);
+        }
+    });
+
+    if duplicates.is_empty() {
+        None
+    } else {
+        return Some(duplicates);
+    }
+}
