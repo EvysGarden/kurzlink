@@ -1,6 +1,9 @@
+use std::collections::HashMap;
+
 use crate::{
     config::{shortlink::Shortlink, tag::Tag},
-    utils::{check_urls, yaml_from_file},
+    error::ValidationError,
+    utils::{check_urls, find_duplicates, yaml_from_file, BoxError},
 };
 
 use std::{path::Path, time::Duration};
@@ -11,26 +14,31 @@ mod tag;
 #[derive(Debug)]
 pub struct Config {
     pub shortlinks: Vec<Shortlink>,
-    pub tags: Vec<Tag>,
+    pub tags: HashMap<String, Tag>,
     pub timeout: Duration,
 }
 
 impl Config {
-    pub fn new(path: &Path) -> Self {
-        let yaml = yaml_from_file(path).unwrap();
+    pub fn new(path: &Path) -> Result<Self, BoxError> {
+        let yaml_result = yaml_from_file(path);
+        if let Err(err) = yaml_result {
+            return Err(err);
+        }
 
-        Config {
+        let yaml = yaml_result.unwrap();
+        
+        Ok(Config {
             shortlinks: yaml["shortlinks"]
-                .as_vec()
+                .as_sequence()
                 .unwrap()
                 .iter()
                 .map(|v| v.into())
                 .collect(),
             tags: yaml["tags"]
-                .as_vec()
+                .as_mapping()
                 .unwrap()
                 .iter()
-                .map(|v| v.into())
+                .map(|(k, v)| (k.as_str().unwrap().to_string(), v.into()))
                 .collect(),
             timeout: Duration::from_millis(
                 yaml["config"]["network"]["timeout"]
@@ -39,10 +47,34 @@ impl Config {
                     .try_into()
                     .unwrap(),
             ),
-        }
+        })
     }
 
-    pub fn check_links(&self) {
+    pub fn validate(&self) -> Result<(), ValidationError> {
+        if let Err(err) = self.check_duplicates() {
+            return Err(err);
+        }
+        if let Err(err) = self.check_links() {
+            return Err(err);
+        }
+        Ok(())
+    }
+
+    fn check_duplicates(&self) -> Result<(), ValidationError> {
+        if let Some(duplicates) =
+            find_duplicates(self.shortlinks.iter().map(|v| &v.sources).flatten())
+        {
+            return Err(ValidationError::DuplicateSources(duplicates));
+        }
+
+        if let Some(duplicates) = find_duplicates(self.shortlinks.iter().map(|v| &v.destination)) {
+            return Err(ValidationError::DuplicateDestinations(duplicates));
+        }
+
+        Ok(())
+    }
+
+    fn check_links(&self) -> Result<(), ValidationError> {
         let links = self
             .shortlinks
             .iter()
@@ -51,7 +83,9 @@ impl Config {
             .collect::<Vec<&str>>();
 
         if let Err(error) = check_urls(&links, self.timeout) {
-            println!("Some response failed with (1): {}", error);
+            Err(ValidationError::NetworkError(error))
+        } else {
+            Ok(())
         }
     }
 }
