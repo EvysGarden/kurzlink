@@ -1,5 +1,3 @@
-use yaml_rust::Yaml;
-
 #[derive(Debug)]
 pub struct Shortlink {
     pub sources: Vec<String>,
@@ -8,21 +6,21 @@ pub struct Shortlink {
     pub check_connection: bool,
 }
 
-impl From<&Yaml> for Shortlink {
-    fn from(yaml: &Yaml) -> Self {
+impl From<&serde_yaml::Value> for Shortlink {
+    fn from(yaml: &serde_yaml::Value) -> Self {
         Shortlink {
             sources: yaml["sources"]
-                .as_vec()
+                .as_sequence()
                 .unwrap()
                 .iter()
-                .map(|v| v.as_str().unwrap().to_owned())
+                .map(|v| v.as_str().unwrap().to_string())
                 .collect(),
-            destination: yaml["destination"].as_str().unwrap().to_owned(),
+            destination: yaml["destination"].as_str().unwrap().to_string(),
             tags: yaml["tags"]
-                .as_vec()
+                .as_sequence()
                 .unwrap()
                 .iter()
-                .map(|v| v.as_str().unwrap().to_owned())
+                .map(|v| v.as_str().unwrap().to_string())
                 .collect(),
             check_connection: yaml["check"].as_bool().unwrap_or(true),
         }

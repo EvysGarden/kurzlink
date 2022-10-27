@@ -1,18 +1,14 @@
-use yaml_rust::Yaml;
-
 #[derive(Debug)]
 pub struct Tag {
-    pub name: String,
     pub description: String,
     pub image: String,
 }
 
-impl From<&Yaml> for Tag {
-    fn from(yaml: &Yaml) -> Self {
+impl From<&serde_yaml::Value> for Tag {
+    fn from(yaml: &serde_yaml::Value) -> Self {
         Tag {
-            name: yaml["name"].as_str().unwrap().to_owned(),
-            description: yaml["description"].as_str().unwrap().to_owned(),
-            image: yaml["image"].as_str().unwrap().to_owned(),
+            description: yaml["description"].as_str().unwrap().to_string(),
+            image: yaml["image"].as_str().unwrap().to_string(),
         }
     }
 }
