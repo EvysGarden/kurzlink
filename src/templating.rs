@@ -28,6 +28,7 @@ mod tmp_tests {
     use std::path::Path;
     use crate::templating::{print_kurzlink_page_from_template, write_html};
     use crate::Config;
+    use std::fs;
 
     #[test]
     fn test_render() {
@@ -38,7 +39,10 @@ mod tmp_tests {
         assert!(rendered_template.contains(&link_to_print.destination));
     }
     #[test]
-    fn test_dinge() {
-        write_html("test","TESTNAME").unwrap();
+    fn test_file_writing() {
+        write_html("test","test").unwrap();
+        let metadata = fs::metadata("out/test.html").unwrap();
+        assert!(metadata.is_file());
+        fs::remove_file("test.html");
     }
 }
