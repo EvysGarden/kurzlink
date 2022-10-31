@@ -13,6 +13,7 @@ fn main(){
         .arg(arg!(-t --templatefile <VALUE>).default_value("gitlab_redirect_page.template").help("the file used as template to generate pages"))
         .arg(arg!(-g --generate).help("genrates files defined by the "))
         .arg(arg!(-n --nocheck).help("skips the checks of the base file for validity"))
+        .arg(arg!(--debug).help("starts a normal run but prints the result instead of writing them to files"))
         .get_matches();
 
     // unwrapping is okay since clap inserts safe defaults
@@ -20,6 +21,7 @@ fn main(){
     let config_file = matches.get_one::<String>("configfile").unwrap();
     let nocheck_flag = matches.get_one::<bool>("nocheck").unwrap();
     let generate_flag = matches.get_one::<bool>("generate").unwrap();
+    let debug = matches.get_one::<bool>("debug").unwrap();
     let links = Config::new(config_file).expect("Invalid shortlink yaml file");
 
     if !*nocheck_flag {
@@ -27,10 +29,14 @@ fn main(){
     }
 
     // generate a file for every shortlink
-    if *generate_flag {
+    if *generate_flag || *debug {
         for link in links.shortlinks {
-            let txt = templating::print_kurzlink_page_from_template(&link, template_path).expect("could not generate tepmlate(s)");
-            dbg!(txt);
+            for link_source in link.sources{
+                let rendered_template = dbg!(templating::print_kurzlink_page_from_template(&link.destination, template_path).expect("could not generate tepmlate(s)"));
+                if !*debug {
+                    templating::write_html(dbg!(rendered_template), link_source).expect("couldnt write a file")
+                }
+            }
         }
     }
 }

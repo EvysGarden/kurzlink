@@ -1,3 +1,2 @@
 Template For Debugging
-{% for l in link.sources %} oh14.de/[{{l}}], ---->  {{link.destination}}
-{% endfor %}
+{{redirect_uri}}
