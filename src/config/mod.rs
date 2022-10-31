@@ -8,7 +8,7 @@ use crate::{
 
 use std::{path::Path, time::Duration};
 
-mod shortlink;
+pub(crate) mod shortlink;
 mod tag;
 
 #[derive(Debug)]
@@ -19,8 +19,8 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new(path: &Path) -> Result<Self, BoxError> {
-        let yaml_result = yaml_from_file(path);
+    pub fn new<P: AsRef<Path>>(path: P) -> Result<Self, BoxError> {
+        let yaml_result = yaml_from_file(path.as_ref());
         if let Err(err) = yaml_result {
             return Err(err);
         }

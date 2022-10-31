@@ -1,4 +1,6 @@
-#[derive(Debug)]
+use serde::{Serialize, Deserialize};
+
+#[derive(Serialize, Deserialize, Debug)]
 pub struct Shortlink {
     pub sources: Vec<String>,
     pub destination: String,
