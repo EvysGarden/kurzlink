@@ -21,10 +21,10 @@ fn main() {
                 .default_value("gitlab_redirect_page.template")
                 .help("the file used as template to generate pages"),
         )
-        .arg(arg!(-g --generate).help("genrates files defined by the "))
-        .arg(arg!(-n --nocheck).help("skips the checks of the base file for validity"))
+        .arg(arg!(-g --generate).help("generates files based on the template"))
+        .arg(arg!(-n --nocheck).help("skips the checks of the config file for validity"))
         .arg(
-            arg!(--print)
+            arg!(-p --print)
                 .help("starts a normal run but prints the result instead of writing them to files"),
         )
         .arg(
