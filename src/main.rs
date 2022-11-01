@@ -56,7 +56,7 @@ fn main() {
         for link in links.shortlinks {
             for link_source in link.sources {
                 let rendered_template =
-                    templating::print_kurzlink_page_from_template(&link.destination, template_file)
+                    templating::render_redirect_html(&link.destination, template_file)
                         .expect("could not generate tepmlate(s)");
                 if !*print_flag {
                     templating::write_html(output_path, &link_source, &rendered_template)
