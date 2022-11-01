@@ -1,6 +1,6 @@
 use crate::{config::Config, error::ValidationError};
 use clap::{arg, command};
-use std::fs;
+use std::{fs, path::Path};
 
 mod config;
 mod error;
@@ -56,10 +56,10 @@ fn main() {
         for link in links.shortlinks {
             for link_source in link.sources {
                 let rendered_template =
-                    templating::render_redirect_html(&link.destination, template_file)
+                    templating::render_redirect_html(&link.destination, Path::new(template_file))
                         .expect("could not generate tepmlate(s)");
                 if !*print_flag {
-                    templating::write_html(output_path, &link_source, &rendered_template)
+                    templating::write_html(Path::new(output_path), &link_source, &rendered_template)
                         .expect("couldnt write a file")
                 }
             }
