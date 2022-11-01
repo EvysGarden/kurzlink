@@ -1,12 +1,13 @@
-use std::fs;
-
 use crate::{config::Config, error::ValidationError};
 use clap::{arg, command};
+use std::fs;
 
 mod config;
 mod error;
 mod templating;
 mod utils;
+
+#[rustfmt::skip::macros(arg)]
 
 fn main() {
     let matches = command!()
