@@ -41,9 +41,7 @@ pub fn check_url(url: &str, timeout: Duration) -> Result<(), BoxError> {
 
 pub fn check_urls(urls: &Vec<&str>, timeout: Duration) -> Result<(), BoxError> {
     for url in urls {
-        if let Err(err) = check_url(url, timeout) {
-            return Err(err);
-        }
+        check_url(url, timeout)?;
     }
     Ok(())
 }
@@ -64,6 +62,6 @@ where
     if duplicates.is_empty() {
         None
     } else {
-        return Some(duplicates);
+        Some(duplicates)
     }
 }
