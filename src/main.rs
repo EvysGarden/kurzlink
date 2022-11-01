@@ -40,8 +40,10 @@ fn main() {
     let nocheck_flag = matches.get_one::<bool>("nocheck").unwrap();
     let generate_flag = matches.get_one::<bool>("generate").unwrap();
     let print_flag = matches.get_one::<bool>("print").unwrap();
-    let links = Config::new(config_file).expect("Invalid shortlink yaml file");
     let output_path = matches.get_one::<String>("output").unwrap();
+
+    // get the links
+    let links = Config::new(config_file).expect("Invalid shortlink yaml file");
 
     if !*nocheck_flag {
         handle_errors_in_shortlinks(&links);
