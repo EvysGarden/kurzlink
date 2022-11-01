@@ -1,6 +1,3 @@
 /target
 /.vscode
 .idea
-
-## ignore generated files
-/public
