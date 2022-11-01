@@ -1,9 +1,8 @@
 #!/bin/sh
 
 rm -rf public
-mkdir -p public
 cargo build
-./target/debug/kurzlink --generate
+./target/debug/kurzlink --generate -o public
 cd public
 python -m http.server
 cd ..
