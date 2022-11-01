@@ -21,7 +21,7 @@ pub fn write_html<P: AsRef<str>>(
     text_to_write: P,
     filename: P,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let dirpath = format!("public/{}.html", filename.as_ref());
+    let dirpath = format!("public/{}", filename.as_ref());
     fs::create_dir(dirpath)?;
 
     let filepath = format!("public/{}/index.html", filename.as_ref());
