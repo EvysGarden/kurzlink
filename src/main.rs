@@ -18,7 +18,7 @@ fn main() {
         )
         .arg(
             arg!(-t --template <VALUE>)
-                .default_value("gitlab_redirect_page.template")
+                .default_value("redirect.template")
                 .help("the file used as template to generate pages"),
         )
         .arg(arg!(-g --generate).help("generates files based on the template"))

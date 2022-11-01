@@ -12,8 +12,8 @@ pub fn print_kurzlink_page_from_template(
 ) -> Result<String, BoxError> {
     let mut env = Environment::new();
     let template: &str = &fs::read_to_string(template_path)?;
-    env.add_template("gitlab_pages_kurzlink", template.as_ref())?;
-    let tmpl = env.get_template("gitlab_pages_kurzlink")?;
+    env.add_template("redirect", template.as_ref())?;
+    let tmpl = env.get_template("redirect")?;
     Ok(tmpl.render(context!(redirect_uri => link.as_ref()))?)
 }
 
@@ -40,7 +40,7 @@ mod tmp_tests {
         let link_to_print = links.shortlinks.get(2).unwrap();
         let rendered_template = print_kurzlink_page_from_template(
             &link_to_print.sources.get(0).unwrap(),
-            "gitlab_redirect_page.template",
+            "redirect.template",
         )
         .unwrap();
         dbg!("{}", rendered_template);
