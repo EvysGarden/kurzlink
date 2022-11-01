@@ -7,4 +7,3 @@ pub enum ValidationError<'a> {
     DuplicateDestinations(HashSet<&'a String>),
     NetworkError(BoxError),
 }
-

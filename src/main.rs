@@ -3,17 +3,27 @@ use clap::{arg, command};
 
 mod config;
 mod error;
-mod utils;
 mod templating;
+mod utils;
 
-
-fn main(){
+fn main() {
     let matches = command!()
-        .arg(arg!(-f --configfile <VALUE>).default_value("kurzlink.yml").help("the file used as base for the generated links"))
-        .arg(arg!(-t --templatefile <VALUE>).default_value("gitlab_redirect_page.template").help("the file used as template to generate pages"))
-        .arg(arg!(-g --generate).help("genrates files defined by the "))
-        .arg(arg!(-n --nocheck).help("skips the checks of the base file for validity"))
-        .arg(arg!(--debug).help("starts a normal run but prints the result instead of writing them to files"))
+        .arg(
+            arg!(-f --configfile <VALUE>)
+                .default_value("kurzlink.yml")
+                .help("the file used as base for the generated links"),
+        )
+        .arg(
+            arg!(-t --templatefile <VALUE>)
+                .default_value("gitlab_redirect_page.template")
+                .help("the file used as template to generate pages"),
+        )
+        .arg(arg!(-g - -generate).help("genrates files defined by the "))
+        .arg(arg!(-n - -nocheck).help("skips the checks of the base file for validity"))
+        .arg(
+            arg!(--debug)
+                .help("starts a normal run but prints the result instead of writing them to files"),
+        )
         .get_matches();
 
     // unwrapping is okay since clap inserts safe defaults
@@ -31,10 +41,15 @@ fn main(){
     // generate a file for every shortlink
     if *generate_flag || *debug {
         for link in links.shortlinks {
-            for link_source in link.sources{
-                let rendered_template = dbg!(templating::print_kurzlink_page_from_template(&link.destination, template_path).expect("could not generate tepmlate(s)"));
+            for link_source in link.sources {
+                let rendered_template = dbg!(templating::print_kurzlink_page_from_template(
+                    &link.destination,
+                    template_path
+                )
+                .expect("could not generate tepmlate(s)"));
                 if !*debug {
-                    templating::write_html(dbg!(rendered_template), link_source).expect("couldnt write a file")
+                    templating::write_html(dbg!(rendered_template), link_source)
+                        .expect("couldnt write a file")
                 }
             }
         }
