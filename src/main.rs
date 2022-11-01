@@ -1,3 +1,5 @@
+use std::fs;
+
 use crate::{config::Config, error::ValidationError};
 use clap::{arg, command};
 
@@ -24,15 +26,21 @@ fn main() {
             arg!(--debug)
                 .help("starts a normal run but prints the result instead of writing them to files"),
         )
+        .arg(
+            arg!(-o --outputpath <VALUE>)
+                .default_value("output")
+                .help("the directory to populate"),
+        )
         .get_matches();
 
     // unwrapping is okay since clap inserts safe defaults
-    let template_path = matches.get_one::<String>("templatefile").unwrap();
+    let template_file = matches.get_one::<String>("templatefile").unwrap();
     let config_file = matches.get_one::<String>("configfile").unwrap();
     let nocheck_flag = matches.get_one::<bool>("nocheck").unwrap();
     let generate_flag = matches.get_one::<bool>("generate").unwrap();
     let debug = matches.get_one::<bool>("debug").unwrap();
     let links = Config::new(config_file).expect("Invalid shortlink yaml file");
+    let output_path = matches.get_one::<String>("outputpath").unwrap();
 
     if !*nocheck_flag {
         handle_errors_in_shortlinks(&links);
@@ -40,11 +48,13 @@ fn main() {
 
     // generate a file for every shortlink
     if *generate_flag || *debug {
+        fs::create_dir(output_path).ok();
+
         for link in links.shortlinks {
             for link_source in link.sources {
                 let rendered_template = dbg!(templating::print_kurzlink_page_from_template(
                     &link.destination,
-                    template_path
+                    template_file
                 )
                 .expect("could not generate tepmlate(s)"));
                 if !*debug {
