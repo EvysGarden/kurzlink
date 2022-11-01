@@ -13,7 +13,6 @@ build-and-verify-kurzlink:
       - public/
       - kurzlink
   script:
-    - mkdir public
     - cargo build
     - rustup component add clippy
     - cargo clippy -- -D warnings
