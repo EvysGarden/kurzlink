@@ -1,0 +1,40 @@
+image: "rust:latest"
+
+stages:
+  - build
+  - test
+  - deploy
+
+# a single step to avoid caching libraries
+build-and-verify-kurzlink:
+  stage: build
+  artifacts:
+    paths:
+      - public/
+      - kurzlink
+  script:
+    - mkdir public
+    - cargo build
+    - rustup component add clippy
+    - cargo clippy -- -D warnings
+    - cargo test
+    - cp target/debug/kurzlink .
+    - ls
+
+test-kurzlink-input-file:
+  stage: test
+  dependencies:
+    - build-and-verify-kurzlink
+  script:
+    # hier das nocheck wegnehmen, da da ja ein falscher link drin ist
+    - ./kurzlink --nocheck
+
+generate-files:
+  stage: deploy
+  dependencies:
+    - build-and-verify-kurzlink
+  artifacts:
+    paths:
+      - public/
+  script:
+    - ./kurzlink --nocheck --generate

@@ -21,7 +21,7 @@ pub fn write_html<P: AsRef<str>>(
     text_to_write: P,
     filename: P,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let path = format!("out/{}.html", filename.as_ref());
+    let path = format!("public/{}.html", filename.as_ref());
     let mut output = File::create(path)?;
     write!(output, "{}", text_to_write.as_ref())?;
     Ok(())
@@ -48,9 +48,9 @@ mod tmp_tests {
     #[test]
     fn test_file_writing() {
         write_html("test", "test").unwrap();
-        let metadata = fs::metadata("out/test.html").unwrap();
+        let metadata = fs::metadata("public/test.html").unwrap();
         assert!(metadata.is_file());
         // cleanup
-        fs::remove_file("out/test.html").unwrap();
+        fs::remove_file("public/test.html").unwrap();
     }
 }
