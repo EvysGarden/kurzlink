@@ -21,8 +21,12 @@ pub fn write_html<P: AsRef<str>>(
     text_to_write: P,
     filename: P,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let path = format!("public/{}.html", filename.as_ref());
-    let mut output = File::create(path)?;
+    let dirpath = format!("public/{}.html", filename.as_ref());
+    fs::create_dir(dirpath)?;
+
+    let filepath = format!("public/{}/index.html", filename.as_ref());
+    let mut output = File::create(filepath)?;
+
     write!(output, "{}", text_to_write.as_ref())?;
     Ok(())
 }
@@ -42,7 +46,7 @@ mod tmp_tests {
             "gitlab_redirect_page.template",
         )
         .unwrap();
-        dbg!("{}",rendered_template);
+        dbg!("{}", rendered_template);
         //assert!(rendered_template.contains(&link_to_print.destination));
     }
     #[test]
