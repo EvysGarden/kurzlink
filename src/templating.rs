@@ -52,9 +52,10 @@ mod tmp_tests {
     #[test]
     fn test_file_writing() {
         write_html("test", "test").unwrap();
-        let metadata = fs::metadata("public/test.html").unwrap();
+        let metadata = fs::metadata("public/test/index.html").unwrap();
         assert!(metadata.is_file());
         // cleanup
-        fs::remove_file("public/test.html").unwrap();
+        fs::remove_file("public/test/index.html").unwrap();
+        fs::remove_dir("public/test").unwrap();
     }
 }
