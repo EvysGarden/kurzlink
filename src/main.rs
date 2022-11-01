@@ -58,7 +58,7 @@ fn main() {
                 )
                 .expect("could not generate tepmlate(s)"));
                 if !*debug {
-                    templating::write_html(dbg!(rendered_template), link_source)
+                    templating::write_html(&output_path, &link_source, &rendered_template)
                         .expect("couldnt write a file")
                 }
             }
