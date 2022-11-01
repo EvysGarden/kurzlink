@@ -22,14 +22,14 @@ shortlinks:
     tags:
       - wasser
       - software
-    check: false
+    check: true
   - sources:
       - broken
     destination: https://en.wikipedia.org/wiki/Aaaaaasdsdsdsd
     tags:
       - wasser
       - software
-    check: true
+    check: false
   - sources:
       - tuxi
       - pingus
@@ -37,4 +37,4 @@ shortlinks:
     tags:
       - wasser
       - software
-    check: true
+    check: false
