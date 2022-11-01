@@ -8,7 +8,7 @@ use crate::{
 
 use std::{path::Path, time::Duration};
 
-mod shortlink;
+pub(crate) mod shortlink;
 mod tag;
 
 #[derive(Debug)]
@@ -19,14 +19,11 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new(path: &Path) -> Result<Self, BoxError> {
-        let yaml_result = yaml_from_file(path);
-        if let Err(err) = yaml_result {
-            return Err(err);
-        }
+    pub fn new(path: impl AsRef<Path>) -> Result<Self, BoxError> {
+        let yaml_result = yaml_from_file(path.as_ref());
 
-        let yaml = yaml_result.unwrap();
-        
+        let yaml = yaml_result?;
+
         Ok(Config {
             shortlinks: yaml["shortlinks"]
                 .as_sequence()
@@ -51,19 +48,13 @@ impl Config {
     }
 
     pub fn validate(&self) -> Result<(), ValidationError> {
-        if let Err(err) = self.check_duplicates() {
-            return Err(err);
-        }
-        if let Err(err) = self.check_links() {
-            return Err(err);
-        }
+        self.check_duplicates()?;
+        self.check_links()?;
         Ok(())
     }
 
     fn check_duplicates(&self) -> Result<(), ValidationError> {
-        if let Some(duplicates) =
-            find_duplicates(self.shortlinks.iter().map(|v| &v.sources).flatten())
-        {
+        if let Some(duplicates) = find_duplicates(self.shortlinks.iter().flat_map(|v| &v.sources)) {
             return Err(ValidationError::DuplicateSources(duplicates));
         }
 
