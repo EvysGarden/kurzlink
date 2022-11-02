@@ -15,7 +15,7 @@ pub fn render_redirect_html(destination: &str, template_path: &Path) -> Result<S
 }
 
 pub fn write_html(basepath: &Path, source: &str, html: &str) -> Result<(), BoxError> {
-    let dirpath = Path::new(basepath).join(source); //format!("{basepath}/{source}");
+    let dirpath = Path::new(basepath).join(source);
     fs::create_dir(&dirpath)?;
 
     let filepath = dirpath.join("index.html");
@@ -36,13 +36,12 @@ mod tmp_tests {
     fn test_render() {
         let links = Config::new("kurzlink.yml").expect("Invalid shortlink yaml file");
         let link_to_print = links.shortlinks.get(2).unwrap();
-        let rendered_template = render_redirect_html(
+        let _rendered_template = render_redirect_html(
             link_to_print.sources.get(0).unwrap(),
             Path::new("redirect.template"),
         )
         .unwrap();
-        dbg!("{}", rendered_template);
-        //assert!(rendered_template.contains(&link_to_print.destination));
+        dbg!("{rendered_template}");
     }
     #[test]
     fn test_file_writing() {
