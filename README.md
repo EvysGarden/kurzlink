@@ -8,4 +8,4 @@ A static site generator for your shortlinks
 - [x] Add useful cli args
 - [ ] Add localization
 - [ ] Add index and error pages
-- [ ] Mirror repo
+- [ ] Mirror repository
