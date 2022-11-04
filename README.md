@@ -6,6 +6,7 @@ A static site generator for your shortlinks
 - [x] Generate static website from template
 - [x] Test connection status of destinations
 - [x] Add useful cli args
+- [x] Generate `vanitymap.json`
 - [ ] Add localization
 - [ ] Add index and error pages
-- [ ] Mirror repository
+- [x] Mirror repository
