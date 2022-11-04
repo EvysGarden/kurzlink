@@ -53,8 +53,8 @@ fn main() {
     if *generate_flag || *print_flag {
         fs::create_dir(output_path).ok();
 
-        for link in links.shortlinks {
-            for link_source in link.sources {
+        for link in &links.shortlinks {
+            for link_source in &link.sources {
                 let rendered_template =
                     templating::render_redirect_html(&link.destination, Path::new(template_file))
                         .expect("could not generate tepmlate(s)");
