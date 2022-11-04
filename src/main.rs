@@ -1,6 +1,10 @@
 use crate::{config::Config, error::ValidationError};
 use clap::{arg, command};
-use std::{fs, path::Path};
+use std::{
+    fs::{self, File},
+    io::Write,
+    path::Path,
+};
 
 mod config;
 mod error;
@@ -24,6 +28,11 @@ fn main() {
         .arg(arg!(-g --generate).help("generates files based on the template"))
         .arg(arg!(-n --nocheck).help("skips the checks of the config file for validity"))
         .arg(
+            arg!(-m --vanitymap <VALUE>)
+                .default_value(None)
+                .help("generate a vanitymap at <VALUE>"),
+        )
+        .arg(
             arg!(-p --print)
                 .help("starts a normal run but prints the result instead of writing them to files"),
         )
@@ -41,6 +50,7 @@ fn main() {
     let generate_flag = matches.get_one::<bool>("generate").unwrap();
     let print_flag = matches.get_one::<bool>("print").unwrap();
     let output_path = matches.get_one::<String>("output").unwrap();
+    let vanity_opt_path = matches.get_one::<String>("vanitymap");
 
     // get the links
     let links = Config::new(config_file).expect("Invalid shortlink yaml file");
@@ -64,6 +74,12 @@ fn main() {
                 }
             }
         }
+    }
+
+    if let Some(vanity_path) = vanity_opt_path {
+        let vanitymap_json = links.generate_vanitymap().to_string();
+        let mut vanity_file = File::create(vanity_path).unwrap();
+        write!(vanity_file, "{vanitymap_json}").unwrap();
     }
 }
 

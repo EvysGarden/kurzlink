@@ -1,5 +1,7 @@
 use std::collections::HashMap;
 
+use serde_json::json;
+
 use crate::{
     config::{shortlink::Shortlink, tag::Tag},
     error::ValidationError,
@@ -29,13 +31,18 @@ impl Config {
                 .as_sequence()
                 .unwrap()
                 .iter()
-                .map(|v| v.into())
+                .map(|v| serde_yaml::from_value(v.to_owned()).unwrap())
                 .collect(),
             tags: yaml["tags"]
                 .as_mapping()
                 .unwrap()
                 .iter()
-                .map(|(k, v)| (k.as_str().unwrap().to_string(), v.into()))
+                .map(|(k, v)| {
+                    (
+                        k.as_str().unwrap().to_string(),
+                        serde_yaml::from_value(v.to_owned()).unwrap(),
+                    )
+                })
                 .collect(),
             timeout: Duration::from_millis(
                 yaml["config"]["network"]["timeout"]
@@ -69,7 +76,7 @@ impl Config {
         let links = self
             .shortlinks
             .iter()
-            .filter(|v| v.check_connection)
+            .filter(|v| v.check)
             .map(|v| v.destination.as_str())
             .collect::<Vec<&str>>();
 
@@ -78,5 +85,12 @@ impl Config {
         } else {
             Ok(())
         }
+    }
+
+    pub fn generate_vanitymap(&self) -> serde_json::Value {
+        json!({
+            "shortlinks": &self.shortlinks,
+            "tags": &self.tags
+        })
     }
 }
