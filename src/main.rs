@@ -69,7 +69,7 @@ fn main() {
                     templating::render_redirect_html(&link.destination, Path::new(template_file))
                         .expect("could not generate tepmlate(s)");
                 if !*print_flag {
-                    templating::write_html(Path::new(output_path), &link_source, &rendered_template)
+                    templating::write_html(Path::new(output_path), link_source, &rendered_template)
                         .expect("couldnt write a file")
                 }
             }
