@@ -18,7 +18,7 @@ sh serve.sh
 
 
 ## Tasks
-- [ ] Make README more useful
+- [x] Make README more useful
 - [x] Generate static website from template
 - [x] Test connection status of destinations
 - [x] Add useful cli args
