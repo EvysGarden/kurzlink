@@ -1,5 +1,21 @@
 # kurzlink
-A static site generator for your shortlinks
+## What is kurzlink?
+Kurzlink is a simple static site generator built in rust.
+
+## License
+kurzlink is licensed under the BSD 3-Clause License.
+
+## Usage
+Make sure you have rust & python installed.
+
+
+To start kurzlink just run the shell script `serve.sh`
+```
+sh serve.sh
+```
+> This will start a webserver on port 8000.
+
+
 
 ## Tasks
 - [ ] Make README more useful
