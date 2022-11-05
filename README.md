@@ -6,7 +6,7 @@ Kurzlink is a simple static site generator built in rust.
 kurzlink is licensed under the BSD 3-Clause License.
 
 ## Usage
-Make sure you have rust & python installed.
+Make sure you have Rust & Python3 installed.
 
 
 To start kurzlink just run the shell script `serve.sh`
