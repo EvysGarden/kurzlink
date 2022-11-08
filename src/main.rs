@@ -53,17 +53,17 @@ fn main() {
     let vanity_opt_path = matches.get_one::<String>("vanitymap");
 
     // get the links
-    let links = Config::new(config_file).expect("Invalid shortlink yaml file");
+    let config = Config::new(config_file).expect("Invalid shortlink yaml file");
 
     if !*nocheck_flag {
-        handle_errors_in_shortlinks(&links);
+        handle_errors_in_shortlinks(&config);
     }
 
     // generate a file for every shortlink
     if *generate_flag || *print_flag {
         fs::create_dir(output_path).ok();
 
-        for link in &links.shortlinks {
+        for link in &config.shortlinks {
             for link_source in &link.sources {
                 let rendered_template =
                     templating::render_redirect_html(&link.destination, Path::new(template_file))
@@ -77,7 +77,7 @@ fn main() {
     }
 
     if let Some(vanity_path) = vanity_opt_path {
-        let vanitymap_json = links.generate_vanitymap().to_string();
+        let vanitymap_json = config.generate_vanitymap().to_string();
         let mut vanity_file = File::create(vanity_path).unwrap();
         write!(vanity_file, "{vanitymap_json}").unwrap();
     }

@@ -22,9 +22,9 @@ pub fn yaml_from_file(path: &Path) -> Result<serde_yaml::Value, BoxError> {
     Ok(serde_yaml::from_str(&fs::read_to_string(path)?)?)
 }
 
-pub fn check_url(url: &str, timeout: Duration) -> Result<(), BoxError> {
+pub fn check_url(url: &str, timeout: u64) -> Result<(), BoxError> {
     let client = reqwest::blocking::Client::new();
-    match client.get(url).timeout(timeout).send() {
+    match client.get(url).timeout(Duration::new(timeout, 0)).send() {
         Ok(result) => {
             if result.status().is_success() {
                 Ok(())
@@ -39,7 +39,7 @@ pub fn check_url(url: &str, timeout: Duration) -> Result<(), BoxError> {
     }
 }
 
-pub fn check_urls(urls: &Vec<&str>, timeout: Duration) -> Result<(), BoxError> {
+pub fn check_urls(urls: &Vec<&str>, timeout: u64) -> Result<(), BoxError> {
     for url in urls {
         check_url(url, timeout)?;
     }

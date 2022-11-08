@@ -1,7 +1,6 @@
 # Configuration for Kurzlink, a static site generator for your shortlinks
-config:
-  network:
-    timeout: 1000
+network:
+  timeout: 1000
 
 tags:
   feuer:
