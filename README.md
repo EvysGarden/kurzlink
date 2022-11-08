@@ -1,9 +1,5 @@
 # kurzlink
-## What is kurzlink?
-Kurzlink is a simple static site generator built in rust.
-
-## License
-kurzlink is licensed under the MIT License.
+A static site generator for your shortlinks.
 
 ## Usage
 ```
