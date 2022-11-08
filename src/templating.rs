@@ -16,7 +16,7 @@ pub fn render_redirect_html(destination: &str, template_path: &Path) -> Result<S
 
 pub fn write_html(basepath: &Path, source: &str, html: &str) -> Result<(), BoxError> {
     let dirpath = Path::new(basepath).join(source);
-    fs::create_dir(&dirpath)?;
+    fs::create_dir(&dirpath).ok();
 
     let filepath = dirpath.join("index.html");
     let mut output = File::create(filepath)?;
