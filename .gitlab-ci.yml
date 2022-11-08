@@ -43,7 +43,6 @@ generate-files:
     - build-and-verify-kurzlink
   artifacts:
     paths:
-      - public/
+      - output/
   script:
     - cargo run -- --nocheck --generate
-    - ls
