@@ -8,9 +8,12 @@ stages:
 # a single step to avoid caching libraries
 build-and-verify-kurzlink:
   stage: build
+  cache:
+    key: cargo-cache
+    paths:
+      - target/
   artifacts:
     paths:
-      - public/
       - kurzlink
   script:
     - cargo build
