@@ -1,14 +1,9 @@
 use crate::{config::Config, error::ValidationError};
 use clap::{arg, command};
-use std::{
-    fs::{self, File},
-    io::Write,
-    path::Path,
-};
+use std::path::Path;
 
 mod config;
 mod error;
-mod templating;
 mod utils;
 
 #[rustfmt::skip::macros(arg)]
@@ -33,10 +28,6 @@ fn main() {
                 .help("generate a vanitymap at <VALUE>"),
         )
         .arg(
-            arg!(-p --print)
-                .help("starts a normal run but prints the result instead of writing them to files"),
-        )
-        .arg(
             arg!(-o --output <VALUE>)
                 .default_value("output")
                 .help("the base directory to populate"),
@@ -48,7 +39,6 @@ fn main() {
     let config_file = matches.get_one::<String>("config").unwrap();
     let nocheck_flag = matches.get_one::<bool>("nocheck").unwrap();
     let generate_flag = matches.get_one::<bool>("generate").unwrap();
-    let print_flag = matches.get_one::<bool>("print").unwrap();
     let output_path = matches.get_one::<String>("output").unwrap();
     let vanity_opt_path = matches.get_one::<String>("vanitymap");
 
@@ -59,36 +49,16 @@ fn main() {
         handle_errors_in_shortlinks(&config);
     }
 
-    // generate a file for every shortlink
-    if *generate_flag || *print_flag {
-        fs::create_dir(output_path).ok();
-
-        if let Some(index) = &config.index {
-            let index_template = templating::render_redirect_html(index, Path::new(template_file))
-                .expect("could not generate tepmlate(s)");
-            if !*print_flag {
-                templating::write_html(Path::new(output_path), ".", &index_template)
-                    .expect("couldnt write a file");
-            }
-        }
-
-        for link in &config.shortlinks {
-            for link_source in &link.sources {
-                let rendered_template =
-                    templating::render_redirect_html(&link.destination, Path::new(template_file))
-                        .expect("could not generate tepmlate(s)");
-                if !*print_flag {
-                    templating::write_html(Path::new(output_path), link_source, &rendered_template)
-                        .expect("couldnt write a file")
-                }
-            }
-        }
+    if *generate_flag {
+        config
+            .render_files(output_path, Path::new(template_file))
+            .expect("couldn't generate files");
     }
 
     if let Some(vanity_path) = vanity_opt_path {
-        let vanitymap_json = config.generate_vanitymap().to_string();
-        let mut vanity_file = File::create(vanity_path).unwrap();
-        write!(vanity_file, "{vanitymap_json}").unwrap();
+        config
+            .write_vanity(vanity_path)
+            .expect("couldn't write vanity json");
     }
 }
 

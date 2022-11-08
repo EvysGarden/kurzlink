@@ -1,10 +1,15 @@
-use std::{collections::HashMap, path::Path};
+use std::{collections::HashMap, fs, path::Path};
 
 use serde::{Deserialize, Serialize};
 use serde_json::json;
 
 use crate::{
-    config::{network::Network, shortlink::Shortlink, tag::Tag},
+    config::{
+        network::Network,
+        shortlink::Shortlink,
+        tag::Tag,
+        templating::{render_redirect_html, write_html},
+    },
     error::ValidationError,
     utils::{check_urls, find_duplicates, yaml_from_file, BoxError},
 };
@@ -12,6 +17,7 @@ use crate::{
 mod network;
 mod shortlink;
 mod tag;
+mod templating;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
@@ -61,11 +67,38 @@ impl Config {
         }
     }
 
-    pub fn generate_vanitymap(&self) -> serde_json::Value {
-        json!({
+    pub fn render_files(
+        &self,
+        output_path: impl AsRef<Path>,
+        template_path: impl AsRef<Path>,
+    ) -> Result<(), BoxError> {
+        fs::create_dir(&output_path)?;
+
+        if let Some(index) = &self.index {
+            let index_render = render_redirect_html(index, &template_path)?;
+            write_html(&output_path, ".", &index_render)?;
+        }
+
+        for shortlink in &self.shortlinks {
+            for source in &shortlink.sources {
+                let source_render = render_redirect_html(source, &template_path)?;
+                write_html(&output_path, ".", &source_render)?;
+            }
+        }
+
+        Ok(())
+    }
+
+    pub fn write_vanity(&self, vanity_path: impl AsRef<Path>) -> Result<(), BoxError> {
+        let vanity = json!({
             "index": &self.index,
             "shortlinks": &self.shortlinks,
             "tags": &self.tags
         })
+        .to_string();
+
+        fs::write(vanity_path, vanity)?;
+
+        Ok(())
     }
 }
