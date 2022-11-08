@@ -3,7 +3,7 @@
 Kurzlink is a simple static site generator built in rust.
 
 ## License
-kurzlink is licensed under the BSD 3-Clause License.
+kurzlink is licensed under the MIT License.
 
 ## Usage
 Make sure you have Rust & Python3 installed.
