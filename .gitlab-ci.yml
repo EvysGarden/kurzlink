@@ -23,6 +23,10 @@ build-and-verify-kurzlink:
 
 test-kurzlink-input-file:
   stage: test
+  cache:
+    key: cargo-cache
+    paths:
+      - target/
   dependencies:
     - build-and-verify-kurzlink
   script:
@@ -31,6 +35,10 @@ test-kurzlink-input-file:
 
 generate-files:
   stage: deploy
+  cache:
+    key: cargo-cache
+    paths:
+      - target/
   dependencies:
     - build-and-verify-kurzlink
   artifacts:
