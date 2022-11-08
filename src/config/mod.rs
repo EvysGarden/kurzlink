@@ -1,57 +1,32 @@
 use std::collections::HashMap;
 
+use serde::{Serialize, Deserialize};
 use serde_json::json;
 
 use crate::{
-    config::{shortlink::Shortlink, tag::Tag},
+    config::{shortlink::Shortlink, tag::Tag, network::Network},
     error::ValidationError,
     utils::{check_urls, find_duplicates, yaml_from_file, BoxError},
 };
 
-use std::{path::Path, time::Duration};
+use std::{path::Path};
 
-pub(crate) mod shortlink;
+mod shortlink;
 mod tag;
+mod network;
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
     pub shortlinks: Vec<Shortlink>,
     pub tags: HashMap<String, Tag>,
-    pub timeout: Duration,
+    pub network: Network,
 }
 
 impl Config {
-    pub fn new(path: impl AsRef<Path>) -> Result<Self, BoxError> {
-        let yaml_result = yaml_from_file(path.as_ref());
+    pub fn new(config_path: impl AsRef<Path>) -> Result<Self, BoxError> {
+        let config_yaml = yaml_from_file(config_path.as_ref());
 
-        let yaml = yaml_result?;
-
-        Ok(Config {
-            shortlinks: yaml["shortlinks"]
-                .as_sequence()
-                .unwrap()
-                .iter()
-                .map(|v| serde_yaml::from_value(v.to_owned()).unwrap())
-                .collect(),
-            tags: yaml["tags"]
-                .as_mapping()
-                .unwrap()
-                .iter()
-                .map(|(k, v)| {
-                    (
-                        k.as_str().unwrap().to_string(),
-                        serde_yaml::from_value(v.to_owned()).unwrap(),
-                    )
-                })
-                .collect(),
-            timeout: Duration::from_millis(
-                yaml["config"]["network"]["timeout"]
-                    .as_i64()
-                    .unwrap()
-                    .try_into()
-                    .unwrap(),
-            ),
-        })
+        Ok(serde_yaml::from_value(config_yaml?).unwrap())
     }
 
     pub fn validate(&self) -> Result<(), ValidationError> {
@@ -80,7 +55,7 @@ impl Config {
             .map(|v| v.destination.as_str())
             .collect::<Vec<&str>>();
 
-        if let Err(error) = check_urls(&links, self.timeout) {
+        if let Err(error) = check_urls(&links, self.network.timeout) {
             Err(ValidationError::NetworkError(error))
         } else {
             Ok(())
