@@ -5,5 +5,5 @@ pub struct Shortlink {
     pub sources: Vec<String>,
     pub destination: String,
     pub tags: Vec<String>,
-    pub check: bool,
+    pub check: Option<bool>,
 }
