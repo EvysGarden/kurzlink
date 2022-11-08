@@ -1,25 +1,24 @@
-use std::collections::HashMap;
+use std::{collections::HashMap, path::Path};
 
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
 use serde_json::json;
 
 use crate::{
-    config::{shortlink::Shortlink, tag::Tag, network::Network},
+    config::{network::Network, shortlink::Shortlink, tag::Tag},
     error::ValidationError,
     utils::{check_urls, find_duplicates, yaml_from_file, BoxError},
 };
 
-use std::{path::Path};
-
+mod network;
 mod shortlink;
 mod tag;
-mod network;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
     pub shortlinks: Vec<Shortlink>,
     pub tags: HashMap<String, Tag>,
     pub network: Network,
+    pub index: Option<String>,
 }
 
 impl Config {
@@ -64,6 +63,7 @@ impl Config {
 
     pub fn generate_vanitymap(&self) -> serde_json::Value {
         json!({
+            "index": &self.index,
             "shortlinks": &self.shortlinks,
             "tags": &self.tags
         })
