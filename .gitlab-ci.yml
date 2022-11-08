@@ -27,7 +27,7 @@ test-kurzlink-input-file:
     - build-and-verify-kurzlink
   script:
     # hier das nocheck wegnehmen, da da ja ein falscher link drin ist
-    - ./kurzlink --nocheck
+    - cargo run -- --nocheck
 
 generate-files:
   stage: deploy
