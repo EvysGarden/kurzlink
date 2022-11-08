@@ -14,14 +14,12 @@ build-and-verify-kurzlink:
       - target/
   artifacts:
     paths:
-      - kurzlink
+      - target/debug/kurzlink
   script:
     - cargo build
     - rustup component add clippy
     - cargo clippy -- -D warnings
     - cargo test
-    - cp target/debug/kurzlink .
-    - ls
 
 test-kurzlink-input-file:
   stage: test
@@ -39,4 +37,5 @@ generate-files:
     paths:
       - public/
   script:
-    - ./kurzlink --nocheck --generate
+    - cargo run -- --nocheck --generate
+    - ls
