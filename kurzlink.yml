@@ -3,6 +3,8 @@ network:
   timeout: 1000
   check: true
 
+index: "https://fsinfo.cs.tu-dortmund.de/links"
+
 tags:
   feuer:
     description: Heißes Zeugs
