@@ -51,7 +51,7 @@ impl Config {
         let links = self
             .shortlinks
             .iter()
-            .filter(|v| v.check.unwrap_or(true))
+            .filter(|v| v.check.unwrap_or(self.network.check))
             .map(|v| v.destination.as_str())
             .collect::<Vec<&str>>();
 
