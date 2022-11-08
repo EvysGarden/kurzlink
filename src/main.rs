@@ -63,6 +63,15 @@ fn main() {
     if *generate_flag || *print_flag {
         fs::create_dir(output_path).ok();
 
+        if let Some(index) = &config.index {
+            let index_template = templating::render_redirect_html(index, Path::new(template_file))
+                .expect("could not generate tepmlate(s)");
+            if !*print_flag {
+                templating::write_html(Path::new(output_path), ".", &index_template)
+                    .expect("couldnt write a file");
+            }
+        }
+
         for link in &config.shortlinks {
             for link_source in &link.sources {
                 let rendered_template =
