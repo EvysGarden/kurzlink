@@ -8,32 +8,41 @@ stages:
 # a single step to avoid caching libraries
 build-and-verify-kurzlink:
   stage: build
+  cache:
+    key: cargo-cache
+    paths:
+      - target/
   artifacts:
     paths:
-      - public/
-      - kurzlink
+      - target/debug/kurzlink
   script:
     - cargo build
     - rustup component add clippy
     - cargo clippy -- -D warnings
     - cargo test
-    - cp target/debug/kurzlink .
-    - ls
 
 test-kurzlink-input-file:
   stage: test
+  cache:
+    key: cargo-cache
+    paths:
+      - target/
   dependencies:
     - build-and-verify-kurzlink
   script:
     # hier das nocheck wegnehmen, da da ja ein falscher link drin ist
-    - ./kurzlink --nocheck
+    - cargo run -- --nocheck
 
 generate-files:
   stage: deploy
+  cache:
+    key: cargo-cache
+    paths:
+      - target/
   dependencies:
     - build-and-verify-kurzlink
   artifacts:
     paths:
-      - public/
+      - output/
   script:
-    - ./kurzlink --nocheck --generate
+    - cargo run -- --nocheck --generate
