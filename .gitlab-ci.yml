@@ -53,7 +53,7 @@ generate-files:
     - cargo run -- --nocheck --generate
 
 docker:master:
-  stage: build
+  stage: deploy
   image: docker:latest
   # rules:
     # - if: $CI_COMMIT_BRANCH == "main"
