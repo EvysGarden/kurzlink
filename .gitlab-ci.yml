@@ -55,7 +55,7 @@ generate-files:
 docker:master:
   stage: build
   image: docker:latest
-  rules:
+  # rules:
     # - if: $CI_COMMIT_BRANCH == "main"
   services:
     - docker:dind
