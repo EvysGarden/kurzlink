@@ -3,7 +3,6 @@ variables:
 
 stages:
   - build
-  - test
   - deploy
 
 # a single step to avoid caching libraries
@@ -16,25 +15,14 @@ build-and-verify-kurzlink:
       - target/
   artifacts:
     paths:
-      - target/debug/kurzlink
+      - target/
   script:
+    - openssl version
     - cargo build
     - rustup component add clippy
     - cargo clippy -- -D warnings
     - cargo test
 
-test-kurzlink-input-file:
-  stage: test
-  image: rust:latest
-  cache:
-    key: cargo-cache
-    paths:
-      - target/
-  dependencies:
-    - build-and-verify-kurzlink
-  script:
-    # hier das nocheck wegnehmen, da da ja ein falscher link drin ist
-    - cargo run -- --nocheck
 
 generate-files:
   stage: deploy
