@@ -40,7 +40,7 @@ generate-files:
     - openssl version
     - cargo run -- --nocheck --generate
 
-docker:master:
+docker:deploy:
   stage: deploy
   image: docker:latest
   # rules:
