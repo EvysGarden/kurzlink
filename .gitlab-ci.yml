@@ -1,4 +1,5 @@
-image: "rust:latest"
+variables:
+  CI_REGISTRY_IMAGE: kurzlink
 
 stages:
   - build
@@ -8,6 +9,7 @@ stages:
 # a single step to avoid caching libraries
 build-and-verify-kurzlink:
   stage: build
+  image: rust:latest
   cache:
     key: cargo-cache
     paths:
@@ -23,6 +25,7 @@ build-and-verify-kurzlink:
 
 test-kurzlink-input-file:
   stage: test
+  image: rust:latest
   cache:
     key: cargo-cache
     paths:
@@ -35,6 +38,7 @@ test-kurzlink-input-file:
 
 generate-files:
   stage: deploy
+  image: rust:latest
   cache:
     key: cargo-cache
     paths:
@@ -45,4 +49,22 @@ generate-files:
     paths:
       - output/
   script:
+    - openssl version
     - cargo run -- --nocheck --generate
+
+docker:master:
+  stage: build
+  image: docker:latest
+  rules:
+    # - if: $CI_COMMIT_BRANCH == "main"
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+  script:
+    - docker build --pull 
+      # --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+      --tag $CI_REGISTRY_IMAGE:latest
+      "."
+    - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
+    - docker push $CI_REGISTRY_IMAGE:latest
