@@ -14,3 +14,7 @@ clap = {version="4.0.18",features=["cargo"]}
 serde_json = "1.0.87"
 # Ring
 ring = "0.16.20"
+
+[[bin]]
+name = "kurzlink"
+path = "src/main.rs"
