@@ -15,7 +15,7 @@ build-and-verify-kurzlink:
       - target/
   artifacts:
     paths:
-      - target/
+      - target/debug/kurzlink
   script:
     - openssl version
     - cargo build
