@@ -37,8 +37,11 @@ generate-files:
     paths:
       - output/
   script:
-    - openssl version
     - cargo run -- --nocheck --generate
+  artifacts:
+    paths:
+      - target/debug/kurzlink
+    expire_in: 1 week
 
 docker:deploy:
   stage: deploy
