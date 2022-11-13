@@ -1,0 +1,4 @@
+FROM ubuntu
+COPY ./target/debug/kurzlink ./bin
+COPY kurzlink.yml .
+

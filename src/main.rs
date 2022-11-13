@@ -1,6 +1,7 @@
 use crate::{config::Config, error::ValidationError};
 use clap::{arg, command};
 use std::path::Path;
+use std::process::exit;
 
 mod config;
 mod error;
@@ -65,11 +66,12 @@ fn main() {
 fn handle_errors_in_shortlinks(config: &Config) {
     if let Err(validation_error) = config.validate() {
         match &validation_error {
-            ValidationError::DuplicateSources(v) => panic!("Found duplicate sources: {:?}", v),
+            ValidationError::DuplicateSources(v) => println!("Found duplicate sources: {:?}", v),
             ValidationError::DuplicateDestinations(v) => {
-                panic!("Found duplicate destinations: {:?}", v)
+                println!("Found duplicate destinations: {:?}", v)
             }
-            ValidationError::NetworkError(v) => panic!("Network error: {:?}", v),
+            ValidationError::NetworkError(v) => println!("Network error: {:?}", v),
         }
     }
+    exit(101);
 }
