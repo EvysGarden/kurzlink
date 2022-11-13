@@ -17,13 +17,12 @@ pub fn render_redirect_html(
     Ok(tmpl.render(context!(redirect_uri => destination))?)
 }
 
-pub fn write_html(basepath: impl AsRef<Path>, source: &str, html: &str) -> anyhow::Result<()> {
-    let dirpath = dbg!(basepath.as_ref().join(source));
-    if !dirpath.as_path().exists(){
-        fs::create_dir(&dirpath).with_context(||"files already present or invalid character in filename".to_string())?;
-    }
+pub fn write_html(base_path: impl AsRef<Path>,  html: &str) -> anyhow::Result<()> {
+    if !base_path.as_ref().exists(){
+        fs::create_dir(&base_path).with_context(||"files already present or invalid character in filename".to_string())?;
+    };
 
-    let filepath = dirpath.join("index.html");
+    let filepath = base_path.as_ref().join("index.html");
     let mut output = File::create(filepath).with_context(||"files already present or invalid character in file".to_string())?;
 
     write!(output, "{html}").with_context(||"file unable to be written, exists or contains invalid character".to_string())?;

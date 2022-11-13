@@ -20,6 +20,8 @@ mod shortlink;
 mod tag;
 mod templating;
 
+static BASE_PATH: &str = ".";
+
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
     pub shortlinks: Vec<Shortlink>,
@@ -79,13 +81,13 @@ impl Config {
 
         if let Some(index) = &self.index {
             let index_render = render_redirect_html(index, &template_path)?;
-            write_html(&output_path, ".", &index_render)?;
+            write_html( &output_path, &index_render)?;
         }
 
         for shortlink in &self.shortlinks {
             for source in &shortlink.sources {
                 let source_render = render_redirect_html(source, &template_path)?;
-                write_html(&output_path, source, &source_render)?;
+                write_html( &output_path.as_ref().join(source), &source_render)?;
             }
         }
 
