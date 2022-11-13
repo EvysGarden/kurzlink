@@ -4,12 +4,11 @@ use std::fs::File;
 use std::io::Write;
 use std::path::Path;
 
-use crate::utils::BoxError;
 
 pub fn render_redirect_html(
     destination: &str,
     template_path: impl AsRef<Path>,
-) -> Result<String, BoxError> {
+) -> anyhow::Result<String> {
     let mut env = Environment::new();
     let template: &str = &fs::read_to_string(template_path)?;
     env.add_template("redirect", template.as_ref())?;
@@ -17,7 +16,7 @@ pub fn render_redirect_html(
     Ok(tmpl.render(context!(redirect_uri => destination))?)
 }
 
-pub fn write_html(basepath: impl AsRef<Path>, source: &str, html: &str) -> Result<(), BoxError> {
+pub fn write_html(basepath: impl AsRef<Path>, source: &str, html: &str) -> anyhow::Result<()> {
     let dirpath = basepath.as_ref().join(source);
     fs::create_dir(&dirpath).ok();
 
