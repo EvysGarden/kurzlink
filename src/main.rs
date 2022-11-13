@@ -53,12 +53,14 @@ fn main()->anyhow::Result<()> {
 
     if *generate_flag {
         config
-            .render_files(output_path, Path::new(template_file)).with_context(||"Rendering failed files failed".to_string())?
+            .render_files(output_path, template_file)
+            .with_context(||"Rendering failed files failed".to_string())?
     }
 
     if let Some(vanity_path) = vanity_opt_path {
         config
-            .write_vanity(vanity_path).with_context(||"Writing the vanitymap failed heroically".to_string())?;
+            .write_vanity(vanity_path)
+            .with_context(||"Writing the vanitymap failed heroically".to_string())?;
     };
     anyhow::Ok(())
 }

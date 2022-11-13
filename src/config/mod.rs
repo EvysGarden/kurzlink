@@ -1,4 +1,5 @@
 use std::{collections::HashMap, fs, path::Path};
+use anyhow::Context;
 
 use serde::{Deserialize, Serialize};
 use serde_json::json;
@@ -72,17 +73,19 @@ impl Config {
         output_path: impl AsRef<Path>,
         template_path: impl AsRef<Path>,
     ) -> anyhow::Result<()> {
-        fs::create_dir(&output_path)?;
+        if !output_path.as_ref().exists(){
+            fs::create_dir(&output_path).with_context(||"Couldnt create output dir")?;
+        }
 
         if let Some(index) = &self.index {
-            let index_render = render_redirect_html(index, &template_path).map_err(anyhow::Error::msg)?;
+            let index_render = render_redirect_html(index, &template_path)?;
             write_html(&output_path, ".", &index_render)?;
         }
 
         for shortlink in &self.shortlinks {
             for source in &shortlink.sources {
                 let source_render = render_redirect_html(source, &template_path)?;
-                write_html(&output_path, ".", &source_render)?;
+                write_html(&output_path, source, &source_render)?;
             }
         }
 

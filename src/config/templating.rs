@@ -3,6 +3,7 @@ use std::fs;
 use std::fs::File;
 use std::io::Write;
 use std::path::Path;
+use anyhow::Context;
 
 
 pub fn render_redirect_html(
@@ -17,13 +18,15 @@ pub fn render_redirect_html(
 }
 
 pub fn write_html(basepath: impl AsRef<Path>, source: &str, html: &str) -> anyhow::Result<()> {
-    let dirpath = basepath.as_ref().join(source);
-    fs::create_dir(&dirpath).ok();
+    let dirpath = dbg!(basepath.as_ref().join(source));
+    if !dirpath.as_path().exists(){
+        fs::create_dir(&dirpath).with_context(||"files already present or invalid character in filename".to_string())?;
+    }
 
     let filepath = dirpath.join("index.html");
-    let mut output = File::create(filepath)?;
+    let mut output = File::create(filepath).with_context(||"files already present or invalid character in file".to_string())?;
 
-    write!(output, "{html}")?;
+    write!(output, "{html}").with_context(||"file unable to be written, exists or contains invalid character".to_string())?;
     Ok(())
 }
 
