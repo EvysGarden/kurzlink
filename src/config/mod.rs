@@ -1,4 +1,5 @@
 use std::{collections::HashMap, fs, path::Path};
+use anyhow::Context;
 
 use serde::{Deserialize, Serialize};
 use serde_json::json;
@@ -11,7 +12,7 @@ use crate::{
         templating::{render_redirect_html, write_html},
     },
     error::ValidationError,
-    utils::{check_urls, find_duplicates, yaml_from_file, BoxError},
+    utils::{check_urls, find_duplicates, yaml_from_file},
 };
 
 mod network;
@@ -28,10 +29,10 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn new(config_path: impl AsRef<Path>) -> Result<Self, BoxError> {
+    pub fn new(config_path: impl AsRef<Path>) -> anyhow::Result<Self> {
         let config_yaml = yaml_from_file(config_path.as_ref());
 
-        Ok(serde_yaml::from_value(config_yaml?).unwrap())
+        Ok(serde_yaml::from_value(config_yaml?).expect("seems like the yaml file does not contain yaml"))
     }
 
     pub fn validate(&self) -> Result<(), ValidationError> {
@@ -71,25 +72,27 @@ impl Config {
         &self,
         output_path: impl AsRef<Path>,
         template_path: impl AsRef<Path>,
-    ) -> Result<(), BoxError> {
-        fs::create_dir(&output_path)?;
+    ) -> anyhow::Result<()> {
+        if !output_path.as_ref().exists(){
+            fs::create_dir(&output_path).with_context(||"Couldnt create output dir")?;
+        }
 
         if let Some(index) = &self.index {
             let index_render = render_redirect_html(index, &template_path)?;
-            write_html(&output_path, ".", &index_render)?;
+            write_html( &output_path, &index_render)?;
         }
 
         for shortlink in &self.shortlinks {
             for source in &shortlink.sources {
                 let source_render = render_redirect_html(source, &template_path)?;
-                write_html(&output_path, ".", &source_render)?;
+                write_html( output_path.as_ref().join(source), &source_render)?;
             }
         }
 
         Ok(())
     }
 
-    pub fn write_vanity(&self, vanity_path: impl AsRef<Path>) -> Result<(), BoxError> {
+    pub fn write_vanity(&self, vanity_path: impl AsRef<Path>) -> anyhow::Result<()> {
         let vanity = json!({
             "index": &self.index,
             "shortlinks": &self.shortlinks,

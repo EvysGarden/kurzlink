@@ -3,13 +3,13 @@ use std::fs;
 use std::fs::File;
 use std::io::Write;
 use std::path::Path;
+use anyhow::Context;
 
-use crate::utils::BoxError;
 
 pub fn render_redirect_html(
     destination: &str,
     template_path: impl AsRef<Path>,
-) -> Result<String, BoxError> {
+) -> anyhow::Result<String> {
     let mut env = Environment::new();
     let template: &str = &fs::read_to_string(template_path)?;
     env.add_template("redirect", template.as_ref())?;
@@ -17,14 +17,15 @@ pub fn render_redirect_html(
     Ok(tmpl.render(context!(redirect_uri => destination))?)
 }
 
-pub fn write_html(basepath: impl AsRef<Path>, source: &str, html: &str) -> Result<(), BoxError> {
-    let dirpath = basepath.as_ref().join(source);
-    fs::create_dir(&dirpath).ok();
+pub fn write_html(base_path: impl AsRef<Path>,  html: &str) -> anyhow::Result<()> {
+    if !base_path.as_ref().exists(){
+        fs::create_dir(&base_path).with_context(||"files already present or invalid character in filename".to_string())?;
+    };
 
-    let filepath = dirpath.join("index.html");
-    let mut output = File::create(filepath)?;
+    let filepath = base_path.as_ref().join("index.html");
+    let mut output = File::create(filepath).with_context(||"files already present or invalid character in file".to_string())?;
 
-    write!(output, "{html}")?;
+    write!(output, "{html}").with_context(||"file unable to be written, exists or contains invalid character".to_string())?;
     Ok(())
 }
 
@@ -51,7 +52,7 @@ mod tmp_tests {
     #[test]
     fn test_file_writing() {
         fs::create_dir("testbase").unwrap();
-        write_html(Path::new("testbase"), "link", "content").unwrap();
+        write_html(Path::new("testbase").join("link"), "content").unwrap();
         let metadata = fs::metadata("testbase/link/index.html").unwrap();
         assert!(metadata.is_file());
         // cleanup

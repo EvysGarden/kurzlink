@@ -1,7 +1,6 @@
 use crate::{config::Config, error::ValidationError};
+use anyhow::{bail, Context};
 use clap::{arg, command};
-use std::path::Path;
-use std::process::exit;
 
 mod config;
 mod error;
@@ -9,7 +8,7 @@ mod utils;
 
 #[rustfmt::skip::macros(arg)]
 
-fn main() {
+fn main() -> anyhow::Result<()> {
     let matches = command!()
         .arg(
             arg!(-c --config <VALUE>)
@@ -44,34 +43,36 @@ fn main() {
     let vanity_opt_path = matches.get_one::<String>("vanitymap");
 
     // get the links
-    let config = Config::new(config_file).expect("Invalid shortlink yaml file");
+    let config = Config::new(config_file).with_context(|| "config cant be init".to_string())?;
 
     if !*nocheck_flag {
-        handle_errors_in_shortlinks(&config);
+        handle_errors_in_shortlinks(&config)?
     }
 
     if *generate_flag {
         config
-            .render_files(output_path, Path::new(template_file))
-            .expect("couldn't generate files");
+            .render_files(output_path, template_file)
+            .with_context(|| "Rendering failed files failed".to_string())?
     }
 
     if let Some(vanity_path) = vanity_opt_path {
         config
             .write_vanity(vanity_path)
-            .expect("couldn't write vanity json");
-    }
+            .with_context(|| "Writing the vanitymap failed heroically".to_string())?;
+    };
+    anyhow::Ok(())
 }
 
-fn handle_errors_in_shortlinks(config: &Config) {
+fn handle_errors_in_shortlinks(config: &Config) -> anyhow::Result<()> {
     if let Err(validation_error) = config.validate() {
         match &validation_error {
-            ValidationError::DuplicateSources(v) => println!("Found duplicate sources: {:?}", v),
+            ValidationError::DuplicateSources(v) => bail!("Found duplicate sources: {:?}", v),
             ValidationError::DuplicateDestinations(v) => {
-                println!("Found duplicate destinations: {:?}", v)
+                bail!("Found duplicate destinations: {:?}", v)
             }
-            ValidationError::NetworkError(v) => println!("Network error: {:?}", v),
+            ValidationError::NetworkError(v) => bail!("Network error: {:?}", v),
         }
+    } else {
+        anyhow::Result::Ok(())
     }
-    exit(101);
 }
