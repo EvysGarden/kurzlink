@@ -1,8 +1,8 @@
+use anyhow::{Context, Result};
 use core::fmt;
 use reqwest::StatusCode;
-use std::{collections::HashSet, error::Error, fs, path::Path, time::Duration};
-use anyhow::{Context, Result};
 use serde_yaml::Value;
+use std::{collections::HashSet, error::Error, fs, path::Path, time::Duration};
 
 pub type BoxError = Box<dyn std::error::Error>;
 
@@ -21,12 +21,14 @@ impl fmt::Display for HttpStatusError {
 impl Error for HttpStatusError {}
 
 pub fn yaml_from_file(path: &Path) -> anyhow::Result<Value> {
-    let yaml_as_str = &fs::read_to_string(path)
-        .with_context(
-            || format!("yaml with shotlinks not found at path : '{}'  ", path.to_str().unwrap())
-        )?;
+    let yaml_as_str = &fs::read_to_string(path).with_context(|| {
+        format!(
+            "yaml with shotlinks not found at path : '{}'  ",
+            path.to_str().unwrap()
+        )
+    })?;
     let result = serde_yaml::from_str(yaml_as_str)?;
-    return Ok(result);
+    Ok(result)
 }
 
 pub fn check_url(url: &str, timeout: u64) -> Result<(), BoxError> {
@@ -54,9 +56,9 @@ pub fn check_urls(urls: &Vec<&str>, timeout: u64) -> Result<(), BoxError> {
 }
 
 pub fn find_duplicates<'a, I, T>(iter: I) -> Option<HashSet<&'a T>>
-    where
-        I: Iterator<Item=&'a T>,
-        T: 'a + std::hash::Hash + std::cmp::Eq,
+where
+    I: Iterator<Item = &'a T>,
+    T: 'a + std::hash::Hash + std::cmp::Eq,
 {
     let mut set = HashSet::new();
     let mut duplicates = HashSet::new();

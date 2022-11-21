@@ -52,7 +52,7 @@ mod tmp_tests {
     #[test]
     fn test_file_writing() {
         fs::create_dir("testbase").unwrap();
-        write_html(Path::new("testbase"), "link", "content").unwrap();
+        write_html(Path::new("testbase").join("link"), "content").unwrap();
         let metadata = fs::metadata("testbase/link/index.html").unwrap();
         assert!(metadata.is_file());
         // cleanup
