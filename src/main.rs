@@ -62,3 +62,17 @@ fn main() -> anyhow::Result<()> {
     };
     anyhow::Ok(())
 }
+
+fn handle_errors_in_shortlinks(config: &Config) -> anyhow::Result<()> {
+    if let Err(validation_error) = config.validate() {
+        match &validation_error {
+            ValidationError::DuplicateSources(v) => bail!("Found duplicate sources: {:?}", v),
+            ValidationError::DuplicateDestinations(v) => {
+                bail!("Found duplicate destinations: {:?}", v)
+            }
+            ValidationError::NetworkError(v) => bail!("Network error: {:?}", v),
+        }
+    } else {
+        anyhow::Result::Ok(())
+    }
+}
