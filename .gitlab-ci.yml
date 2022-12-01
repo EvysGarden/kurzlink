@@ -1,5 +1,6 @@
 variables:
   CI_REGISTRY_IMAGE: kurzlink
+  CARGO_HOME: $CI_PROJECT_DIR/.cargo
 
 stages:
   - build
@@ -12,7 +13,7 @@ build-and-verify-kurzlink:
   cache:
     key: cargo-cache
     paths:
-      - target/
+      - .cargo/
   artifacts:
     paths:
       - target/debug/kurzlink
@@ -23,36 +24,21 @@ build-and-verify-kurzlink:
     - cargo clippy -- -D warnings
     - cargo test
 
-
-generate-files:
-  stage: deploy
-  image: rust:latest
-  cache:
-    key: cargo-cache
-    paths:
-      - target/
-  dependencies:
-    - build-and-verify-kurzlink
-  artifacts:
-    paths:
-      - output/
-  script:
-    - cargo run -- --nocheck --generate
-  artifacts:
-    paths:
-      - target/debug/kurzlink
-    expire_in: 1 week
-
 docker:deploy:
   stage: deploy
   image: docker:latest
-  # rules:
-    # - if: $CI_COMMIT_BRANCH == "main"
+  cache:
+    key: cargo-cache
+    paths:
+      - .cargo/
   services:
     - docker:dind
   before_script:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
-    - docker build --pull --tag $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA --tag $CI_REGISTRY_IMAGE:latest .
-    # - docker push $CI_REGISTRY_IMAGE:$CI_COMMIT_SHA
-    # - docker push $CI_REGISTRY_IMAGE:latest
+    - docker build --pull --tag $CI_REGISTRY/$CI_PROJECT_PATH:$CI_COMMIT_SHA --tag $CI_REGISTRY/$CI_PROJECT_PATH:latest .
+    - |
+      if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then
+        docker push $CI_REGISTRY/$CI_PROJECT_PATH:latest
+      fi
+    - docker push $CI_REGISTRY/$CI_PROJECT_PATH:$CI_COMMIT_SHA
