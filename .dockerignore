@@ -1,0 +1,12 @@
+/target
+/.vscode
+.idea
+.DS_Store
+
+.gitignore
+.gitlab-ci
+Dockerfile
+Dockerfile-dev
+README.md
+kurzlink.yml
+serve.sh
