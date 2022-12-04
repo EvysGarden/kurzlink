@@ -17,19 +17,19 @@ fn main() -> anyhow::Result<()> {
         )
         .arg(
             arg!(-t --template <VALUE>)
-                .default_value("redirect.template")
+                .default_value("/etc/kurzlink/redirect.template")
                 .help("the file used as template to generate pages"),
         )
         .arg(arg!(-g --generate).help("generates files based on the template"))
         .arg(arg!(-n --nocheck).help("skips the checks of the config file for validity"))
         .arg(
             arg!(-m --vanitymap <VALUE>)
-                .default_value(None)
+                .default_value("public/vanitymap.json")
                 .help("generate a vanitymap at <VALUE>"),
         )
         .arg(
             arg!(-o --output <VALUE>)
-                .default_value("output")
+                .default_value("public")
                 .help("the base directory to populate"),
         )
         .get_matches();

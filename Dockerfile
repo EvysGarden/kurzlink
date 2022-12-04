@@ -9,9 +9,7 @@ RUN cargo build --release
 ################
 ##### Runtime
 FROM alpine
-WORKDIR /app
+WORKDIR /kurzlink
 # Copy application binary from builder image
 COPY --from=builder /app/target/release/kurzlink /bin/kurzlink
-COPY redirect.template .
-
-ENTRYPOINT ["/bin/kurzlink"]
+COPY redirect.template /etc/kurzlink/
