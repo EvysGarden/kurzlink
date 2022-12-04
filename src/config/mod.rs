@@ -84,8 +84,8 @@ impl Config {
 
         for shortlink in &self.shortlinks {
             for source in &shortlink.sources {
-                let source_render = render_redirect_html(source, &template_path).expect(&format!("Failed to run render_redirect_html for source {}", source));
-                write_html( output_path.as_ref().join(source), &source_render).expect(&format!("Failed to run write_html for source {}", source));
+                let source_render = render_redirect_html(source, &template_path).unwrap_or_else(|_| panic!("Failed to run render_redirect_html for source {}", source));
+                write_html( output_path.as_ref().join(source), &source_render).unwrap_or_else(|_| panic!("Failed to run write_html for source {}", source));
             }
         }
 
