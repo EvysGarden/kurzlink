@@ -11,10 +11,10 @@ pub fn render_redirect_html(
     template_path: impl AsRef<Path>,
 ) -> anyhow::Result<String> {
     let mut env = Environment::new();
-    let template: &str = &fs::read_to_string(template_path)?;
-    env.add_template("redirect", template.as_ref())?;
-    let tmpl = env.get_template("redirect")?;
-    Ok(tmpl.render(context!(redirect_uri => destination))?)
+    let template: &str = &fs::read_to_string(template_path).unwrap_or_else(|_| panic!("Failed to read template from {}", template_path));
+    env.add_template("redirect", template.as_ref()).unwrap("Failed to add template");
+    let tmpl = env.get_template("redirect").unwrap("Failed to get template");
+    Ok(tmpl.render(context!(redirect_uri => destination)).unwrap("Failed to render template");)
 }
 
 pub fn write_html(base_path: impl AsRef<Path>,  html: &str) -> anyhow::Result<()> {
