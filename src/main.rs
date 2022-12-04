@@ -50,6 +50,8 @@ fn main() -> anyhow::Result<()> {
     }
 
     if *generate_flag {
+        eprintln!("Template path: {}", template_file);
+
         config
             .render_files(output_path, template_file)
             .with_context(|| "Rendering failed files failed".to_string())?
