@@ -78,14 +78,14 @@ impl Config {
         }
 
         if let Some(index) = &self.index {
-            let index_render = render_redirect_html(index, &template_path)?;
-            write_html( &output_path, &index_render)?;
+            let index_render = render_redirect_html(index, &template_path).expect("Failed to run render_redirect_html for index");
+            write_html( &output_path, &index_render).expect("Failed to run write_html for index");
         }
 
         for shortlink in &self.shortlinks {
             for source in &shortlink.sources {
-                let source_render = render_redirect_html(source, &template_path)?;
-                write_html( output_path.as_ref().join(source), &source_render)?;
+                let source_render = render_redirect_html(source, &template_path).expect(&format!("Failed to run render_redirect_html for source {}", source));
+                write_html( output_path.as_ref().join(source), &source_render).expect(&format!("Failed to run write_html for source {}", source));
             }
         }
 
