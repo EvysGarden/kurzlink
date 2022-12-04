@@ -2,5 +2,6 @@
 /.vscode
 .idea
 .DS_Store
-.output
-.public
+
+output
+public
