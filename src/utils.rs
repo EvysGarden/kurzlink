@@ -4,6 +4,8 @@ use reqwest::StatusCode;
 use serde_yaml::Value;
 use std::{collections::HashSet, error::Error, fs, path::Path, time::Duration};
 
+use crate::error::ValidationError;
+
 pub type BoxError = Box<dyn std::error::Error>;
 
 #[derive(Debug)]
@@ -31,40 +33,41 @@ pub fn yaml_from_file(path: &Path) -> anyhow::Result<Value> {
     Ok(result)
 }
 
-pub fn check_url(url: &str, timeout: u64) -> Result<(), BoxError> {
+pub fn check_url(url: &str, timeout: u64) -> anyhow::Result<()> {
     let client = reqwest::blocking::Client::new();
     match client.get(url).timeout(Duration::new(timeout, 0)).send() {
         Ok(result) => {
             if result.status().is_success() {
                 Ok(())
             } else {
-                Err(Box::new(HttpStatusError {
+                Err(ValidationError::HttpStatusError {
                     url: result.url().to_string(),
                     status: result.status(),
-                }))
+                }
+                .into())
             }
         }
-        Err(err) => Err(Box::new(err)),
+        Err(err) => Err(err.into()),
     }
 }
 
-pub fn check_urls(urls: &Vec<&str>, timeout: u64) -> Result<(), BoxError> {
+pub fn check_urls(urls: &Vec<&str>, timeout: u64) -> anyhow::Result<()> {
     for url in urls {
         check_url(url, timeout)?;
     }
     Ok(())
 }
 
-pub fn find_duplicates<'a, I, T>(iter: I) -> Option<HashSet<&'a T>>
+pub fn find_duplicates<'a, I, T>(iter: I) -> Option<HashSet<T>>
 where
     I: Iterator<Item = &'a T>,
-    T: 'a + std::hash::Hash + std::cmp::Eq,
+    T: 'static + std::hash::Hash + std::cmp::Eq + Clone,
 {
     let mut set = HashSet::new();
-    let mut duplicates = HashSet::new();
+    let mut duplicates = HashSet::<T>::new();
     iter.for_each(|v| {
         if !set.insert(v) {
-            duplicates.insert(v);
+            duplicates.insert(v.clone());
         }
     });
 
