@@ -1,4 +1,6 @@
-use crate::{config::Config, error::ValidationError};
+use std::process::exit;
+
+use crate::config::Config;
 use anyhow::{bail, Context};
 use clap::{arg, command};
 
@@ -43,10 +45,18 @@ fn main() -> anyhow::Result<()> {
     let vanity_opt_path = matches.get_one::<String>("vanitymap");
 
     // get the links
-    let config = Config::new(config_file).with_context(|| "config cant be init".to_string())?;
+    let config = Config::new(config_file)
+        .with_context(|| "config cant be init".to_string())
+        .unwrap_or_else(|err| {
+            println!("Error: {}", err.root_cause());
+            exit(1);
+        });
 
     if !*nocheck_flag {
-        handle_errors_in_shortlinks(&config)?
+        config.validate().unwrap_or_else(|err| {
+            println!("Error: {}", err.root_cause());
+            exit(2);
+        });
     }
 
     if *generate_flag {
@@ -63,16 +73,16 @@ fn main() -> anyhow::Result<()> {
     anyhow::Ok(())
 }
 
-fn handle_errors_in_shortlinks(config: &Config) -> anyhow::Result<()> {
-    if let Err(validation_error) = config.validate() {
-        match &validation_error {
-            ValidationError::DuplicateSources(v) => bail!("Found duplicate sources: {:?}", v),
-            ValidationError::DuplicateDestinations(v) => {
-                bail!("Found duplicate destinations: {:?}", v)
-            }
-            ValidationError::NetworkError(v) => bail!("Network error: {:?}", v),
-        }
-    } else {
-        anyhow::Result::Ok(())
-    }
-}
+// fn handle_errors_in_shortlinks(config: &Config) -> anyhow::Result<()> {
+//     if let Err(validation_error) = config.validate() {
+//         match &validation_error {
+//             ValidationError::DuplicateSources(v) => bail!("Found duplicate sources: {:?}", v),
+//             ValidationError::DuplicateDestinations(v) => {
+//                 bail!("Found duplicate destinations: {:?}", v)
+//             }
+//             ValidationError::NetworkError(v) => bail!("Network error: {:?}", v),
+//         }
+//     } else {
+//         anyhow::Result::Ok(())
+//     }
+// }

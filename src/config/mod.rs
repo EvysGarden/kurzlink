@@ -1,5 +1,5 @@
-use std::{collections::HashMap, fs, path::Path};
 use anyhow::Context;
+use std::{collections::HashMap, fs, path::Path};
 
 use serde::{Deserialize, Serialize};
 use serde_json::json;
@@ -30,30 +30,30 @@ pub struct Config {
 
 impl Config {
     pub fn new(config_path: impl AsRef<Path>) -> anyhow::Result<Self> {
-        let config_yaml = yaml_from_file(config_path.as_ref());
+        let config_yaml = yaml_from_file(config_path.as_ref())?;
 
-        Ok(serde_yaml::from_value(config_yaml?).expect("seems like the yaml file does not contain yaml"))
+        Ok(serde_yaml::from_value(config_yaml)?)
     }
 
-    pub fn validate(&self) -> Result<(), ValidationError> {
+    pub fn validate(&self) -> anyhow::Result<()> {
         self.check_duplicates()?;
         self.check_links()?;
         Ok(())
     }
 
-    fn check_duplicates(&self) -> Result<(), ValidationError> {
+    fn check_duplicates(&self) -> anyhow::Result<()> {
         if let Some(duplicates) = find_duplicates(self.shortlinks.iter().flat_map(|v| &v.sources)) {
-            return Err(ValidationError::DuplicateSources(duplicates));
+            return Err(ValidationError::DuplicateSources(duplicates).into());
         }
 
         if let Some(duplicates) = find_duplicates(self.shortlinks.iter().map(|v| &v.destination)) {
-            return Err(ValidationError::DuplicateDestinations(duplicates));
+            return Err(ValidationError::DuplicateDestinations(duplicates).into());
         }
 
         Ok(())
     }
 
-    fn check_links(&self) -> Result<(), ValidationError> {
+    fn check_links(&self) -> anyhow::Result<()> {
         let links = self
             .shortlinks
             .iter()
@@ -62,7 +62,7 @@ impl Config {
             .collect::<Vec<&str>>();
 
         if let Err(error) = check_urls(&links, self.network.timeout) {
-            Err(ValidationError::NetworkError(error))
+            Err(error)
         } else {
             Ok(())
         }
@@ -73,19 +73,19 @@ impl Config {
         output_path: impl AsRef<Path>,
         template_path: impl AsRef<Path>,
     ) -> anyhow::Result<()> {
-        if !output_path.as_ref().exists(){
-            fs::create_dir(&output_path).with_context(||"Couldnt create output dir")?;
+        if !output_path.as_ref().exists() {
+            fs::create_dir(&output_path).with_context(|| "Couldnt create output dir")?;
         }
 
         if let Some(index) = &self.index {
             let index_render = render_redirect_html(index, &template_path)?;
-            write_html( &output_path, &index_render)?;
+            write_html(&output_path, &index_render)?;
         }
 
         for shortlink in &self.shortlinks {
             for source in &shortlink.sources {
                 let source_render = render_redirect_html(source, &template_path)?;
-                write_html( output_path.as_ref().join(source), &source_render)?;
+                write_html(output_path.as_ref().join(source), &source_render)?;
             }
         }
 
