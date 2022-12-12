@@ -84,7 +84,7 @@ impl Config {
 
         for shortlink in &self.shortlinks {
             for source in &shortlink.sources {
-                let source_render = render_redirect_html(source, &template_path)?;
+                let source_render = render_redirect_html(&shortlink.destination, &template_path)?;
                 write_html(output_path.as_ref().join(source), &source_render)?;
             }
         }

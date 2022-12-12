@@ -1,7 +1,7 @@
 use std::process::exit;
 
 use crate::config::Config;
-use anyhow::{bail, Context};
+use anyhow::Context;
 use clap::{arg, command};
 
 mod config;

@@ -2,8 +2,6 @@ use std::{collections::HashSet, error::Error, fmt::Display};
 
 use reqwest::StatusCode;
 
-use crate::utils::BoxError;
-
 #[derive(Debug)]
 pub enum ValidationError {
     DuplicateSources(HashSet<String>),

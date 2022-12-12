@@ -1,12 +1,10 @@
-use anyhow::{Context, Result};
+use anyhow::Context;
 use core::fmt;
 use reqwest::StatusCode;
 use serde_yaml::Value;
 use std::{collections::HashSet, error::Error, fs, path::Path, time::Duration};
 
 use crate::error::ValidationError;
-
-pub type BoxError = Box<dyn std::error::Error>;
 
 #[derive(Debug)]
 pub struct HttpStatusError {
