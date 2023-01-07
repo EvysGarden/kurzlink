@@ -50,7 +50,7 @@ fn main() -> anyhow::Result<()> {
         bail!("Template not specified and no template found in default locations.");
     };
 
-    let config_file = if let Some(config_file) = matches.get_one::<PathBuf>("config_file") {
+    let config_file = if let Some(config_file) = matches.get_one::<PathBuf>("config") {
         if !config_file.exists() {
             bail!("Specified config doesn't exist.");
         }
