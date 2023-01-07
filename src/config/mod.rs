@@ -61,11 +61,7 @@ impl Config {
             .map(|v| v.destination.as_str())
             .collect::<Vec<&str>>();
 
-        if let Err(error) = check_urls(&links, self.network.timeout) {
-            Err(error)
-        } else {
-            Ok(())
-        }
+        check_urls(&links, self.network.timeout)
     }
 
     pub fn render_files(

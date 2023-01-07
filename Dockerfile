@@ -12,6 +12,6 @@ FROM alpine
 WORKDIR /app
 # Copy application binary from builder image
 COPY --from=builder /app/target/release/kurzlink /bin/kurzlink
-COPY redirect.template .
+COPY redirect.template /etc/kurzlink/redirect.template
 
 ENTRYPOINT ["/bin/kurzlink"]
