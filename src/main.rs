@@ -1,8 +1,11 @@
-use std::process::exit;
+use std::{
+    path::{Path, PathBuf},
+    process::exit,
+};
 
 use crate::config::Config;
-use anyhow::Context;
-use clap::{arg, command};
+use anyhow::{bail, Context};
+use clap::{arg, command, value_parser};
 
 mod config;
 mod error;
@@ -19,8 +22,9 @@ fn main() -> anyhow::Result<()> {
         )
         .arg(
             arg!(-t --template <VALUE>)
-                .default_value("redirect.template")
-                .help("the file used as template to generate pages"),
+                .value_parser(value_parser!(PathBuf))
+                .required(false)
+                .help("the file used as template to generate pages [defaults: redirect.template, ~/.config/kurzlink/redirect.template and /etc/kurzlink/redirect.template]"),
         )
         .arg(arg!(-g --generate).help("generates files based on the template"))
         .arg(arg!(-n --nocheck).help("skips the checks of the config file for validity"))
@@ -36,8 +40,25 @@ fn main() -> anyhow::Result<()> {
         )
         .get_matches();
 
+    let template_file = if let Some(template_file) = matches.get_one::<PathBuf>("template") {
+        if !template_file.exists() {
+            bail!("Specified template doesn't exist.");
+        }
+
+        template_file.clone()
+    } else {
+        if Path::new("redirect.template").exists() {
+            PathBuf::from("redirect.template")
+        } else if Path::new("~/.config/kurzlink/redirect.template").exists() {
+            PathBuf::from("redirect.template")
+        } else if Path::new("/etc/kurzlink/redirect.template").exists() {
+            PathBuf::from("/etc/kurzlink/redirect.template")
+        } else {
+            bail!("Template not specified and no template found in default locations.");
+        }
+    };
+
     // unwrapping is okay since clap inserts safe defaults
-    let template_file = matches.get_one::<String>("template").unwrap();
     let config_file = matches.get_one::<String>("config").unwrap();
     let nocheck_flag = matches.get_one::<bool>("nocheck").unwrap();
     let generate_flag = matches.get_one::<bool>("generate").unwrap();
