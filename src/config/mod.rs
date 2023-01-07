@@ -74,7 +74,7 @@ impl Config {
         template_path: impl AsRef<Path>,
     ) -> anyhow::Result<()> {
         if !output_path.as_ref().exists() {
-            fs::create_dir(&output_path).with_context(|| "Couldnt create output dir")?;
+            fs::create_dir(&output_path).with_context(|| "Couldn't create output dir")?;
         }
 
         if let Some(index) = &self.index {

@@ -62,7 +62,7 @@ fn main() -> anyhow::Result<()> {
     if *generate_flag {
         config
             .render_files(output_path, template_file)
-            .with_context(|| "Rendering failed files failed".to_string())?
+            .with_context(|| "Rendering files failed".to_string())?
     }
 
     if let Some(vanity_path) = vanity_opt_path {
