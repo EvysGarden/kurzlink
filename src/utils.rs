@@ -2,7 +2,13 @@ use anyhow::Context;
 use core::fmt;
 use reqwest::StatusCode;
 use serde_yaml::Value;
-use std::{collections::HashSet, error::Error, fs, path::Path, time::Duration};
+use std::{
+    collections::HashSet,
+    error::Error,
+    fs,
+    path::{Path, PathBuf},
+    time::Duration,
+};
 
 use crate::error::ValidationError;
 
@@ -74,4 +80,15 @@ where
     } else {
         Some(duplicates)
     }
+}
+
+pub fn search_common_paths(query: impl AsRef<Path>) -> Option<PathBuf> {
+    if query.as_ref().exists() {
+        return Some(PathBuf::from(query.as_ref()));
+    }
+
+    vec!["~/.config/kurzlink/", "/etc/kurzlink/"]
+        .iter()
+        .map(|dir| Path::new(dir).join(&query))
+        .find(|path| path.exists())
 }
