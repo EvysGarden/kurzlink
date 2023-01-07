@@ -1,10 +1,9 @@
+use anyhow::Context;
 use minijinja::{context, Environment};
 use std::fs;
 use std::fs::File;
 use std::io::Write;
 use std::path::Path;
-use anyhow::Context;
-
 
 pub fn render_redirect_html(
     destination: &str,
@@ -17,15 +16,20 @@ pub fn render_redirect_html(
     Ok(tmpl.render(context!(redirect_uri => destination))?)
 }
 
-pub fn write_html(base_path: impl AsRef<Path>,  html: &str) -> anyhow::Result<()> {
-    if !base_path.as_ref().exists(){
-        fs::create_dir(&base_path).with_context(||"files already present or invalid character in filename".to_string())?;
+pub fn write_html(base_path: impl AsRef<Path>, html: &str) -> anyhow::Result<()> {
+    if !base_path.as_ref().exists() {
+        fs::create_dir(&base_path).with_context(|| {
+            "files already present or invalid character in filename".to_string()
+        })?;
     };
 
     let filepath = base_path.as_ref().join("index.html");
-    let mut output = File::create(filepath).with_context(||"files already present or invalid character in file".to_string())?;
+    let mut output = File::create(filepath)
+        .with_context(|| "files already present or invalid character in file".to_string())?;
 
-    write!(output, "{html}").with_context(||"file unable to be written, exists or contains invalid character".to_string())?;
+    write!(output, "{html}").with_context(|| {
+        "file unable to be written, exists or contains invalid character".to_string()
+    })?;
     Ok(())
 }
 
@@ -33,7 +37,7 @@ pub fn write_html(base_path: impl AsRef<Path>,  html: &str) -> anyhow::Result<()
 mod tmp_tests {
     use crate::{
         config::templating::{render_redirect_html, write_html},
-        Config
+        Config,
     };
     use std::fs;
     use std::path::Path;
