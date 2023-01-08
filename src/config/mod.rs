@@ -10,6 +10,7 @@ use crate::{
         shortlink::Shortlink,
         tag::Tag,
         templating::{render_redirect_html, write_html},
+        url::AbsoluteUrl,
     },
     error::ValidationError,
     utils::{check_urls, find_duplicates},
@@ -19,20 +20,20 @@ mod network;
 mod shortlink;
 mod tag;
 mod templating;
+pub mod url;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Config {
     pub shortlinks: Vec<Shortlink>,
     pub tags: HashMap<String, Tag>,
     pub network: Network,
-    pub index: Option<String>,
+    pub index: Option<AbsoluteUrl>,
 }
 
 impl Config {
     pub fn new(config_path: impl AsRef<Path>) -> anyhow::Result<Self> {
         Ok(serde_yaml::from_str(
-            &fs::read_to_string(config_path)
-                .with_context(|| "config not found".to_string())?,
+            &fs::read_to_string(config_path).with_context(|| "config not found".to_string())?,
         )?)
     }
 
@@ -59,8 +60,8 @@ impl Config {
             .shortlinks
             .iter()
             .filter(|v| v.check.unwrap_or(self.network.check))
-            .map(|v| v.destination.as_str())
-            .collect::<Vec<&str>>();
+            .map(|v| v.destination.clone())
+            .collect::<Vec<AbsoluteUrl>>();
 
         check_urls(&links, self.network.timeout)
     }
@@ -80,9 +81,9 @@ impl Config {
         }
 
         for shortlink in &self.shortlinks {
+            let target_render = render_redirect_html(&shortlink.destination, &template_path)?;
             for source in &shortlink.sources {
-                let source_render = render_redirect_html(&shortlink.destination, &template_path)?;
-                write_html(output_path.as_ref().join(source), &source_render)?;
+                write_html(output_path.as_ref().join(source.inner()), &target_render)?;
             }
         }
 
