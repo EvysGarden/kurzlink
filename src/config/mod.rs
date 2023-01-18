@@ -31,7 +31,8 @@ pub struct Config {
 impl Config {
     pub fn new(config_path: impl AsRef<Path>) -> anyhow::Result<Self> {
         Ok(serde_yaml::from_str(
-            &fs::read_to_string(config_path).with_context(|| format!("config not found"))?,
+            &fs::read_to_string(config_path)
+                .with_context(|| "config not found".to_string())?,
         )?)
     }
 
