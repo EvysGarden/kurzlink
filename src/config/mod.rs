@@ -12,7 +12,7 @@ use crate::{
         templating::{render_redirect_html, write_html},
     },
     error::ValidationError,
-    utils::{check_urls, find_duplicates, yaml_from_file},
+    utils::{check_urls, find_duplicates},
 };
 
 mod network;
@@ -30,9 +30,9 @@ pub struct Config {
 
 impl Config {
     pub fn new(config_path: impl AsRef<Path>) -> anyhow::Result<Self> {
-        let config_yaml = yaml_from_file(config_path.as_ref())?;
-
-        Ok(serde_yaml::from_value(config_yaml)?)
+        Ok(serde_yaml::from_str(
+            &fs::read_to_string(config_path).with_context(|| format!("config not found"))?,
+        )?)
     }
 
     pub fn validate(&self) -> anyhow::Result<()> {

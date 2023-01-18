@@ -1,11 +1,8 @@
-use anyhow::Context;
 use core::fmt;
 use reqwest::StatusCode;
-use serde_yaml::Value;
 use std::{
     collections::HashSet,
     error::Error,
-    fs,
     path::{Path, PathBuf},
     time::Duration,
 };
@@ -26,16 +23,16 @@ impl fmt::Display for HttpStatusError {
 
 impl Error for HttpStatusError {}
 
-pub fn yaml_from_file(path: &Path) -> anyhow::Result<Value> {
-    let yaml_as_str = &fs::read_to_string(path).with_context(|| {
-        format!(
-            "yaml with shotlinks not found at path : '{}'  ",
-            path.to_str().unwrap()
-        )
-    })?;
-    let result = serde_yaml::from_str(yaml_as_str)?;
-    Ok(result)
-}
+// pub fn yaml_from_file(path: &Path) -> anyhow::Result<Value> {
+//     let yaml_as_str = &fs::read_to_string(path).with_context(|| {
+//         format!(
+//             "yaml with shotlinks not found at path : '{}'  ",
+//             path.to_str().unwrap()
+//         )
+//     })?;
+//     let result = serde_yaml::from_str(yaml_as_str)?;
+//     Ok(result)
+// }
 
 pub fn check_url(url: &str, timeout: u64) -> anyhow::Result<()> {
     let client = reqwest::blocking::Client::new();
