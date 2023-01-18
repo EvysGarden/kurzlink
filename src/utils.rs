@@ -7,6 +7,7 @@ use std::{
     time::Duration,
 };
 
+use crate::config::url::AbsoluteUrl;
 use crate::error::ValidationError;
 
 #[derive(Debug)]
@@ -23,20 +24,13 @@ impl fmt::Display for HttpStatusError {
 
 impl Error for HttpStatusError {}
 
-// pub fn yaml_from_file(path: &Path) -> anyhow::Result<Value> {
-//     let yaml_as_str = &fs::read_to_string(path).with_context(|| {
-//         format!(
-//             "yaml with shotlinks not found at path : '{}'  ",
-//             path.to_str().unwrap()
-//         )
-//     })?;
-//     let result = serde_yaml::from_str(yaml_as_str)?;
-//     Ok(result)
-// }
-
-pub fn check_url(url: &str, timeout: u64) -> anyhow::Result<()> {
+pub fn check_url(url: &AbsoluteUrl, timeout: u64) -> anyhow::Result<()> {
     let client = reqwest::blocking::Client::new();
-    match client.get(url).timeout(Duration::new(timeout, 0)).send() {
+    match client
+        .get(url.inner())
+        .timeout(Duration::new(timeout, 0))
+        .send()
+    {
         Ok(result) => {
             if result.status().is_success() {
                 Ok(())
@@ -52,7 +46,7 @@ pub fn check_url(url: &str, timeout: u64) -> anyhow::Result<()> {
     }
 }
 
-pub fn check_urls(urls: &Vec<&str>, timeout: u64) -> anyhow::Result<()> {
+pub fn check_urls(urls: &Vec<AbsoluteUrl>, timeout: u64) -> anyhow::Result<()> {
     for url in urls {
         check_url(url, timeout)?;
     }

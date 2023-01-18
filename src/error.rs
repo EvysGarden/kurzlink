@@ -1,11 +1,12 @@
+use crate::config::url::{AbsoluteUrl, RelativeUrl};
 use std::{collections::HashSet, error::Error, fmt::Display};
 
 use reqwest::StatusCode;
 
 #[derive(Debug)]
 pub enum ValidationError {
-    DuplicateSources(HashSet<String>),
-    DuplicateDestinations(HashSet<String>),
+    DuplicateSources(HashSet<RelativeUrl>),
+    DuplicateDestinations(HashSet<AbsoluteUrl>),
     HttpStatusError { url: String, status: StatusCode },
 }
 

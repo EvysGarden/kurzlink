@@ -5,6 +5,7 @@ KL_BASEPATH="${KL_PWD}/servetest"
 KL_VANITYPATH="${KL_BASEPATH}/vanitymap.json"
 KL_CONFIGFILE="${KL_PWD}/kurzlink.yml"
 
+rm -rf "${KL_BASEPATH}"
 cargo run -- -g -o "${KL_BASEPATH}" -m "${KL_VANITYPATH}" -c "${KL_CONFIGFILE}" -n || exit
 cd "${KL_BASEPATH}"
 python3 -m http.server
