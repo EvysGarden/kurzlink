@@ -1,4 +1,4 @@
-use anyhow::{bail, Context};
+use anyhow::Context;
 use std::{collections::HashMap, fs, path::Path};
 
 use serde::{Deserialize, Serialize};
