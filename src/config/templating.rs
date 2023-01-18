@@ -5,15 +5,17 @@ use std::fs::File;
 use std::io::Write;
 use std::path::Path;
 
+use super::url::AbsoluteUrl;
+
 pub fn render_redirect_html(
-    destination: &str,
+    destination: &AbsoluteUrl,
     template_path: impl AsRef<Path>,
 ) -> anyhow::Result<String> {
     let mut env = Environment::new();
     let template: &str = &fs::read_to_string(template_path)?;
     env.add_template("redirect", template.as_ref())?;
     let tmpl = env.get_template("redirect")?;
-    Ok(tmpl.render(context!(redirect_uri => destination))?)
+    Ok(tmpl.render(context!(redirect_uri => destination.inner()))?)
 }
 
 pub fn write_html(base_path: impl AsRef<Path>, html: &str) -> anyhow::Result<()> {
@@ -46,11 +48,9 @@ mod tmp_tests {
     fn test_render() {
         let links = Config::new("kurzlink.yml").expect("Invalid shortlink yaml file");
         let link_to_print = links.shortlinks.get(2).unwrap();
-        let _rendered_template = render_redirect_html(
-            link_to_print.sources.get(0).unwrap(),
-            Path::new("redirect.template"),
-        )
-        .unwrap();
+        let _rendered_template =
+            render_redirect_html(&link_to_print.destination, Path::new("redirect.template"))
+                .unwrap();
         dbg!("{rendered_template}");
     }
     #[test]
