@@ -7,11 +7,7 @@ pub struct AbsoluteUrl(String);
 
 impl AbsoluteUrl {
     pub fn try_new(url: String) -> Result<Self, ParseError> {
-        if let Err(err) = reqwest::Url::parse(&url) {
-            Err(err)
-        } else {
-            Ok(Self(url))
-        }
+        Ok(Self(reqwest::Url::parse(&url)?.to_string()))
     }
 
     #[inline]
@@ -34,14 +30,11 @@ pub struct RelativeUrl(String);
 
 impl RelativeUrl {
     pub fn try_new(url: String) -> Result<Self, ParseError> {
-        let validate_base_url: reqwest::Url =
-            reqwest::Url::parse("https://www.example.com/").unwrap();
+        reqwest::Url::parse("https://www.example.com/")
+            .unwrap()
+            .join(&url)?;
 
-        if let Err(err) = validate_base_url.join(&url) {
-            Err(err)
-        } else {
-            Ok(Self(url))
-        }
+        Ok(Self(url))
     }
 
     #[inline]
