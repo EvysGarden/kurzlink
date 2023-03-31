@@ -8,4 +8,5 @@ pub struct Shortlink {
     pub destination: AbsoluteUrl,
     pub tags: Option<Vec<String>>,
     pub check: Option<bool>,
+    pub description: Option<String>,
 }

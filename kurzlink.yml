@@ -21,6 +21,7 @@ shortlinks:
       - tux
       - pingu
     destination: https://en.wikipedia.org/wiki/Tux_(mascot)
+    description: yo
     tags:
       - wasser
       - software
