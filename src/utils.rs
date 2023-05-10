@@ -36,13 +36,13 @@ pub fn check_url(url: &AbsoluteUrl, timeout: u64) -> anyhow::Result<()> {
                 Ok(())
             } else {
                 Err(ValidationError::HttpStatusError {
-                    url: result.url().to_string(),
+                    url: url.inner().clone(),
                     status: result.status(),
                 }
                 .into())
             }
         }
-        Err(err) => Err(err.into()),
+        Err(err) => Err(anyhow::Error::msg(err.to_string()))
     }
 }
 
