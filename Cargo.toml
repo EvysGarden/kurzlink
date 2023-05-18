@@ -3,6 +3,7 @@ name = "kurzlink"
 version = "1.0.0"
 edition = "2021"
 description = "A static site generator for your shortlinks"
+license = "MIT"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
