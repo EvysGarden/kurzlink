@@ -1,22 +1,8 @@
 use anyhow::Context;
-use minijinja::{context, Environment};
 use std::fs;
 use std::fs::File;
 use std::io::Write;
 use std::path::Path;
-
-use super::url::AbsoluteUrl;
-
-pub fn render_redirect_html(
-    destination: &AbsoluteUrl,
-    template_path: impl AsRef<Path>,
-) -> anyhow::Result<String> {
-    let mut env = Environment::new();
-    let template: &str = &fs::read_to_string(template_path)?;
-    env.add_template("redirect", template.as_ref())?;
-    let tmpl = env.get_template("redirect")?;
-    Ok(tmpl.render(context!(redirect_uri => destination.inner()))?)
-}
 
 pub fn write_html(base_path: impl AsRef<Path>, html: &str) -> anyhow::Result<()> {
     if !base_path.as_ref().exists() {
@@ -47,21 +33,34 @@ pub fn write_html(base_path: impl AsRef<Path>, html: &str) -> anyhow::Result<()>
 
 #[cfg(test)]
 mod tmp_tests {
-    use crate::{
-        config::templating::{render_redirect_html, write_html},
-        Config,
-    };
+    use minijinja::Environment;
+
+    use crate::config::network::Network;
+    use crate::{config::templating::write_html, Config};
     use std::fs;
     use std::path::Path;
 
     #[test]
-    fn test_render() {
+    fn test_render() -> anyhow::Result<()> {
+        let mut env = Environment::new();
+        let binding = fs::read_to_string("./redirect.template")?;
+        env.add_template("redirect", &binding)?;
+        let template = env.get_template("redirect")?;
+
         let links = Config::new("kurzlink.yml").expect("Invalid shortlink yaml file");
         let link_to_print = links.shortlinks.get(2).unwrap();
-        let _rendered_template =
-            render_redirect_html(&link_to_print.destination, Path::new("redirect.template"))
-                .unwrap();
+        link_to_print.checked_html(
+            template,
+            &Network {
+                timeout: 2,
+                check: false,
+                ogp: false,
+            },
+        )?;
+
         dbg!("{rendered_template}");
+
+        Ok(())
     }
     #[test]
     fn test_file_writing() {
