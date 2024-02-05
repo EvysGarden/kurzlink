@@ -13,6 +13,8 @@ use crate::{
     utils::find_duplicates,
 };
 
+use self::templating::TEMPLATE;
+
 mod network;
 mod shortlink;
 mod tag;
@@ -55,15 +57,14 @@ impl Config {
     pub fn render_files(
         &self,
         output_path: impl AsRef<Path>,
-        template_path: impl AsRef<Path>,
     ) -> anyhow::Result<()> {
         if !output_path.as_ref().exists() {
             fs::create_dir(&output_path).with_context(|| "Couldn't create output dir")?;
         }
 
         let mut env = Environment::new();
-        let binding = fs::read_to_string(&template_path)?;
-        env.add_template("redirect", &binding)?;
+        
+        env.add_template("redirect", TEMPLATE)?;
         let template = env.get_template("redirect")?;
 
         if let Some(index) = &self.index {

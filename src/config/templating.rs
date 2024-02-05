@@ -4,6 +4,24 @@ use std::fs::File;
 use std::io::Write;
 use std::path::Path;
 
+pub const TEMPLATE: &str = 
+r#"(<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Du wirst weitergeleitet&hellip;</title>
+        <link rel="canonical" href="{{redirect_uri}}">
+        <script>location="{{redirect_uri}}"</script>
+        <meta http-equiv="refresh" content="0; url={{redirect_uri}}">
+        <meta name="robots" content="noindex">
+        {{ogp_meta}}
+    </head>
+    <body>
+        <h1>Du wirst weitergeleitet&hellip;</h1><!-- TODO: this should be localised -->
+        Du wirst zu <a href="{{redirect_uri}}">{{redirect_uri}}</a> weitergeleitet.
+    </body>
+</html>)"#;
+
 pub fn write_html(base_path: impl AsRef<Path>, html: &str) -> anyhow::Result<()> {
     if !base_path.as_ref().exists() {
         fs::create_dir_all(&base_path).with_context(|| {
@@ -36,6 +54,7 @@ mod tmp_tests {
     use minijinja::Environment;
 
     use crate::config::network::Network;
+    use crate::config::templating::TEMPLATE;
     use crate::{config::templating::write_html, Config};
     use std::fs;
     use std::path::Path;
@@ -43,8 +62,7 @@ mod tmp_tests {
     #[test]
     fn test_render() -> anyhow::Result<()> {
         let mut env = Environment::new();
-        let binding = fs::read_to_string("./redirect.template")?;
-        env.add_template("redirect", &binding)?;
+        env.add_template("redirect", TEMPLATE)?;
         let template = env.get_template("redirect")?;
 
         let links = Config::new("kurzlink.yml").expect("Invalid shortlink yaml file");

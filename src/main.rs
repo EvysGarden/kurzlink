@@ -19,12 +19,6 @@ fn main() -> anyhow::Result<()> {
                 .required(false)
                 .help("the file used as base for the generated links"),
         )
-        .arg(
-            arg!(-t --template <VALUE>)
-                .value_parser(value_parser!(PathBuf))
-                .required(false)
-                .help("the file used as template to generate pages [defaults: redirect.template, ~/.config/kurzlink/redirect.template and /etc/kurzlink/redirect.template]"),
-        )
         .arg(arg!(-g --generate).help("generates files based on the template"))
         .arg(arg!(-n --nocheck).help("skips the checks of the config file for validity"))
         .arg(
@@ -38,17 +32,6 @@ fn main() -> anyhow::Result<()> {
                 .help("the base directory to populate"),
         )
         .get_matches();
-
-    let template_file = if let Some(template_file) = matches.get_one::<PathBuf>("template") {
-        if !template_file.exists() {
-            bail!("Specified template doesn't exist.");
-        }
-        template_file.clone()
-    } else if let Some(path) = search_common_paths("redirect.template") {
-        path
-    } else {
-        bail!("Template not specified and no template found in default locations.");
-    };
 
     let config_file = if let Some(config_file) = matches.get_one::<PathBuf>("config") {
         if !config_file.exists() {
@@ -84,7 +67,7 @@ fn main() -> anyhow::Result<()> {
 
     if *generate_flag {
         config
-            .render_files(output_path, template_file)
+            .render_files(output_path)
             .with_context(|| "Rendering files failed".to_string())?
     }
 

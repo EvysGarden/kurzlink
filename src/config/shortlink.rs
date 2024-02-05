@@ -21,7 +21,11 @@ pub struct Shortlink {
 }
 
 impl Shortlink {
-    pub fn checked_html(&self, template: Template, network_config: &Network) -> anyhow::Result<String> {
+    pub fn checked_html(
+        &self,
+        template: Template,
+        network_config: &Network,
+    ) -> anyhow::Result<String> {
         let mut meta = String::new();
         if self.check.unwrap_or(network_config.check) {
             let result = reqwest::blocking::Client::new()
@@ -38,15 +42,14 @@ impl Shortlink {
             }
 
             if network_config.ogp {
-                let dom = Html::parse_document(&result.text()?);
-                let selector = Selector::parse(
-                    r#"meta[property^="og:"]"#,
-                ).unwrap();
-                meta = dom
-                    .select(&selector)
-                    .map(|element| element.html() + "\n")
-                    .collect::<String>();
-                println!("meta: {meta}");
+                if let Ok(text) = result.text().as_ref() {
+                    let dom = Html::parse_document(text);
+                    let selector = Selector::parse(r#"meta[property^="og:"]"#).unwrap();
+                    meta = dom
+                        .select(&selector)
+                        .map(|element| element.html() + "\n")
+                        .collect::<String>();
+                }
             }
         }
 
