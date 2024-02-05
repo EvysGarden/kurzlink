@@ -4,4 +4,5 @@ use serde::{Deserialize, Serialize};
 pub struct Network {
     pub timeout: u64,
     pub check: bool,
+    pub ogp: bool,
 }

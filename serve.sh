@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env sh
 
 KL_PWD="$(pwd)"
 KL_BASEPATH="${KL_PWD}/servetest"

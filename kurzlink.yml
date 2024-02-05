@@ -2,6 +2,7 @@
 network:
   timeout: 1000
   check: true
+  ogp: true
 
 index: "https://fsinfo.cs.tu-dortmund.de/links"
 
