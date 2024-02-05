@@ -24,6 +24,14 @@ build-and-verify-kurzlink:
     - cargo clippy -- -D warnings
     - cargo test
 
+# nix build
+build-nix:
+  stage: build
+  image: nixos/nix:latest
+  script:
+    - nix-channel --update
+    - nix --extra-experimental-features "nix-command flakes" build
+
 docker:deploy:
   stage: deploy
   image: docker:latest
