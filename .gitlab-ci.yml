@@ -47,8 +47,4 @@ docker:deploy:
     - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
   script:
     - docker build --pull --tag $CI_REGISTRY/$CI_PROJECT_PATH:$CI_COMMIT_SHA --tag $CI_REGISTRY/$CI_PROJECT_PATH:latest .
-    - |
-      if [[ "$CI_COMMIT_BRANCH" == "$CI_DEFAULT_BRANCH" ]]; then
-        docker push $CI_REGISTRY/$CI_PROJECT_PATH:latest
-      fi
-    - docker push $CI_REGISTRY/$CI_PROJECT_PATH:$CI_COMMIT_SHA
+    - docker push $CI_REGISTRY/$CI_PROJECT_PATH:latest

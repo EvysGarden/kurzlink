@@ -1,4 +1,4 @@
-FROM docker.io/library/rust:1.61.0-alpine as builder
+FROM docker.io/library/rust:alpine as builder
 
 WORKDIR /app
 RUN apk upgrade --update-cache --available && \
