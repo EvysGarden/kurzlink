@@ -21,16 +21,26 @@ pub fn render_redirect_html(
 pub fn write_html(base_path: impl AsRef<Path>, html: &str) -> anyhow::Result<()> {
     if !base_path.as_ref().exists() {
         fs::create_dir_all(&base_path).with_context(|| {
-            format!("files already present or invalid character in file: {}", base_path.as_ref().to_str().unwrap_or("INVALID PATH"))
+            format!(
+                "files already present or invalid character in file: {}",
+                base_path.as_ref().to_str().unwrap_or("INVALID PATH")
+            )
         })?;
     };
 
     let filepath = base_path.as_ref().join("index.html");
-    let mut output = File::create(filepath)
-        .with_context(|| format!("files already present or invalid character in file: {}", base_path.as_ref().to_str().unwrap_or("INVALID PATH")))?;
+    let mut output = File::create(filepath).with_context(|| {
+        format!(
+            "files already present or invalid character in file: {}",
+            base_path.as_ref().to_str().unwrap_or("INVALID PATH")
+        )
+    })?;
 
     write!(output, "{html}").with_context(|| {
-        format!("file unable to be written, exists or contains invalid character: {}", base_path.as_ref().to_str().unwrap_or("INVALID PATH"))
+        format!(
+            "file unable to be written, exists or contains invalid character: {}",
+            base_path.as_ref().to_str().unwrap_or("INVALID PATH")
+        )
     })?;
     Ok(())
 }

@@ -42,7 +42,7 @@ pub fn check_url(url: &AbsoluteUrl, timeout: u64) -> anyhow::Result<()> {
                 .into())
             }
         }
-        Err(err) => Err(anyhow::Error::msg(err.to_string()))
+        Err(err) => Err(anyhow::Error::msg(err.to_string())),
     }
 }
 
@@ -78,7 +78,7 @@ pub fn search_common_paths(query: impl AsRef<Path>) -> Option<PathBuf> {
         return Some(PathBuf::from(query.as_ref()));
     }
 
-    vec!["~/.config/kurzlink/", "/etc/kurzlink/"]
+    ["~/.config/kurzlink/", "/etc/kurzlink/"]
         .iter()
         .map(|dir| Path::new(dir).join(&query))
         .find(|path| path.exists())
