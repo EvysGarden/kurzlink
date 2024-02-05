@@ -33,6 +33,8 @@ build-nix:
     - nix --extra-experimental-features "nix-command flakes" build
 
 docker:deploy:
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
   stage: deploy
   image: docker:latest
   cache:
