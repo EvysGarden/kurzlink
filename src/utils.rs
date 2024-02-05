@@ -4,11 +4,7 @@ use std::{
     collections::HashSet,
     error::Error,
     path::{Path, PathBuf},
-    time::Duration,
 };
-
-use crate::config::url::AbsoluteUrl;
-use crate::error::ValidationError;
 
 #[derive(Debug)]
 pub struct HttpStatusError {
@@ -23,35 +19,6 @@ impl fmt::Display for HttpStatusError {
 }
 
 impl Error for HttpStatusError {}
-
-pub fn check_url(url: &AbsoluteUrl, timeout: u64) -> anyhow::Result<()> {
-    let client = reqwest::blocking::Client::new();
-    match client
-        .get(url.inner())
-        .timeout(Duration::new(timeout, 0))
-        .send()
-    {
-        Ok(result) => {
-            if result.status().is_success() {
-                Ok(())
-            } else {
-                Err(ValidationError::HttpStatusError {
-                    url: url.inner().clone(),
-                    status: result.status(),
-                }
-                .into())
-            }
-        }
-        Err(err) => Err(anyhow::Error::msg(err.to_string())),
-    }
-}
-
-pub fn check_urls(urls: &Vec<AbsoluteUrl>, timeout: u64) -> anyhow::Result<()> {
-    for url in urls {
-        check_url(url, timeout)?;
-    }
-    Ok(())
-}
 
 pub fn find_duplicates<'a, I, T>(iter: I) -> Option<HashSet<T>>
 where

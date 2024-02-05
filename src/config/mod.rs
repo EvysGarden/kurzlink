@@ -1,4 +1,5 @@
 use anyhow::Context;
+use minijinja::Environment;
 use std::{collections::HashMap, fs, path::Path};
 
 use serde::{Deserialize, Serialize};
@@ -6,14 +7,10 @@ use serde_json::json;
 
 use crate::{
     config::{
-        network::Network,
-        shortlink::Shortlink,
-        tag::Tag,
-        templating::{render_redirect_html, write_html},
-        url::AbsoluteUrl,
+        network::Network, shortlink::Shortlink, tag::Tag, templating::write_html, url::AbsoluteUrl,
     },
     error::ValidationError,
-    utils::{check_urls, find_duplicates},
+    utils::find_duplicates,
 };
 
 mod network;
@@ -39,7 +36,7 @@ impl Config {
 
     pub fn validate(&self) -> anyhow::Result<()> {
         self.check_duplicates()?;
-        self.check_links()?;
+        // self.check_links()?;
         Ok(())
     }
 
@@ -55,17 +52,6 @@ impl Config {
         Ok(())
     }
 
-    fn check_links(&self) -> anyhow::Result<()> {
-        let links = self
-            .shortlinks
-            .iter()
-            .filter(|v| v.check.unwrap_or(self.network.check))
-            .map(|v| v.destination.clone())
-            .collect::<Vec<AbsoluteUrl>>();
-
-        check_urls(&links, self.network.timeout)
-    }
-
     pub fn render_files(
         &self,
         output_path: impl AsRef<Path>,
@@ -75,13 +61,27 @@ impl Config {
             fs::create_dir(&output_path).with_context(|| "Couldn't create output dir")?;
         }
 
+        let mut env = Environment::new();
+        let binding = fs::read_to_string(&template_path)?;
+        env.add_template("redirect", &binding)?;
+        let template = env.get_template("redirect")?;
+
         if let Some(index) = &self.index {
-            let index_render = render_redirect_html(index, &template_path)?;
-            write_html(&output_path, &index_render)?;
+            let index_link = Shortlink {
+                check: None,
+                description: None,
+                destination: index.clone(),
+                sources: Vec::new(),
+                tags: None,
+            };
+            write_html(
+                &output_path,
+                &index_link.checked_html(template, &self.network)?,
+            )?;
         }
 
         for shortlink in &self.shortlinks {
-            let target_render = render_redirect_html(&shortlink.destination, &template_path)?;
+            let target_render = shortlink.checked_html(template, &self.network)?;
             for source in &shortlink.sources {
                 write_html(output_path.as_ref().join(source.inner()), &target_render)?;
             }
