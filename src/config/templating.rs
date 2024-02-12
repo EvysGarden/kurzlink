@@ -4,8 +4,8 @@ use std::fs::File;
 use std::io::Write;
 use std::path::Path;
 
-pub const TEMPLATE: &str = 
-r#"(<!DOCTYPE html>
+pub const TEMPLATE: &str = r#"
+<!DOCTYPE html>
 <html>
     <head>
         <meta charset="UTF-8">
@@ -20,7 +20,8 @@ r#"(<!DOCTYPE html>
         <h1>Du wirst weitergeleitet&hellip;</h1><!-- TODO: this should be localised -->
         Du wirst zu <a href="{{redirect_uri}}">{{redirect_uri}}</a> weitergeleitet.
     </body>
-</html>)"#;
+</html>
+"#;
 
 pub fn write_html(base_path: impl AsRef<Path>, html: &str) -> anyhow::Result<()> {
     if !base_path.as_ref().exists() {
