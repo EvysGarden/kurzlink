@@ -51,7 +51,7 @@ fn main() -> anyhow::Result<()> {
     let vanity_opt_path = matches.get_one::<String>("vanitymap");
 
     // get the links
-    let config = Config::new(config_file)
+    let mut config = Config::new(config_file)
         .with_context(|| "config couldn't be initialized".to_string())
         .unwrap_or_else(|err| {
             println!("Error: {}", err.root_cause());
@@ -63,6 +63,8 @@ fn main() -> anyhow::Result<()> {
             println!("Error: {}", err.root_cause());
             exit(2);
         });
+    } else {
+        config.network.check = false
     }
 
     if *generate_flag {
