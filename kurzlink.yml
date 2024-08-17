@@ -6,6 +6,9 @@ network:
 
 index: "https://fsinfo.cs.tu-dortmund.de/links"
 
+files:
+  - more_config.yml
+
 tags:
   feuer:
     description: Heißes Zeugs
@@ -18,15 +21,6 @@ tags:
     image: software.svg
 
 shortlinks:
-  - sources:
-      - tux
-      - pingu
-    destination: https://en.wikipedia.org/wiki/Tux_(mascot)
-    description: yo
-    tags:
-      - wasser
-      - software
-    check: true
   - sources:
       - broken
     destination: https://en.wikipedia.org/wiki/Aaaaaasdsdsdsd

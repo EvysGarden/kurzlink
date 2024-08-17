@@ -27,13 +27,23 @@ pub struct Config {
     pub tags: HashMap<String, Tag>,
     pub network: Network,
     pub index: Option<AbsoluteUrl>,
+    pub files: Option<Vec<String>>,
 }
 
 impl Config {
     pub fn new(config_path: impl AsRef<Path>) -> anyhow::Result<Self> {
-        Ok(serde_yaml::from_str(
+        let mut config: Config = serde_yaml::from_str(
             &fs::read_to_string(config_path).with_context(|| "config not found".to_string())?,
-        )?)
+        )?;
+        let additional_files = config.files.clone().unwrap_or_default();
+        for file in additional_files {
+            let mut additional_links: Vec<Shortlink> = serde_yaml::from_str(
+                &fs::read_to_string(file)
+                    .with_context(|| "additional shortlink file not found".to_string())?,
+            )?;
+            config.shortlinks.append(&mut additional_links);
+        }
+        Ok(config)
     }
 
     pub fn validate(&self) -> anyhow::Result<()> {
@@ -54,16 +64,13 @@ impl Config {
         Ok(())
     }
 
-    pub fn render_files(
-        &self,
-        output_path: impl AsRef<Path>,
-    ) -> anyhow::Result<()> {
+    pub fn render_files(&self, output_path: impl AsRef<Path>) -> anyhow::Result<()> {
         if !output_path.as_ref().exists() {
             fs::create_dir(&output_path).with_context(|| "Couldn't create output dir")?;
         }
 
         let mut env = Environment::new();
-        
+
         env.add_template("redirect", TEMPLATE)?;
         let template = env.get_template("redirect")?;
 
