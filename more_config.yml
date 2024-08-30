@@ -1,0 +1,18 @@
+- sources:
+    - tax
+    - pangu
+  destination: https://oh14.de/exit
+  description: funny
+  tags:
+    - feuer
+    - software
+  check: true
+- sources:
+    - tux
+    - pingu
+  destination: https://en.wikipedia.org/wiki/Tux_(mascot)
+  description: yo
+  tags:
+    - wasser
+    - software
+  check: true
