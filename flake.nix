@@ -2,7 +2,6 @@
   description = "kurzlink - a static site generator for your shortlinks";
 
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
     naersk.url = "github:nix-community/naersk/master";
     utils.url = "github:numtide/flake-utils";
   };
