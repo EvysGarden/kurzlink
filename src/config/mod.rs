@@ -1,6 +1,10 @@
 use anyhow::Context;
 use minijinja::Environment;
-use std::{collections::HashMap, fs, path::Path};
+use std::{
+    collections::HashMap,
+    fs,
+    path::{Path, PathBuf},
+};
 
 use serde::{Deserialize, Serialize};
 use serde_json::json;
@@ -33,15 +37,26 @@ pub struct Config {
 impl Config {
     pub fn new(config_path: impl AsRef<Path>) -> anyhow::Result<Self> {
         let mut config: Config = serde_yaml::from_str(
-            &fs::read_to_string(config_path).with_context(|| "config not found".to_string())?,
+            &fs::read_to_string(&config_path).with_context(|| "config not found".to_string())?,
         )?;
-        let additional_files = config.files.clone().unwrap_or_default();
-        for file in additional_files {
-            let mut additional_links: Vec<Shortlink> = serde_yaml::from_str(
-                &fs::read_to_string(file)
-                    .with_context(|| "additional shortlink file not found".to_string())?,
-            )?;
-            config.shortlinks.append(&mut additional_links);
+        if let Some(ref additional_paths) = config.files {
+            let base_path = config_path.as_ref().parent().unwrap();
+            let actual_paths: Vec<PathBuf> = additional_paths
+                .iter()
+                .map(|path_str| {
+                    let path = PathBuf::from(&path_str);
+                    if path.is_absolute() {
+                        path
+                    } else {
+                        base_path.join(path)
+                    }
+                })
+                .collect();
+            for path in actual_paths {
+                config
+                    .shortlinks
+                    .append(&mut serde_yaml::from_str(&fs::read_to_string(&path)?)?);
+            }
         }
         Ok(config)
     }
